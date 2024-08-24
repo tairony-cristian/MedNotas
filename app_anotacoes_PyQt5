@@ -1,0 +1,314 @@
+from PyQt5 import QtWidgets
+import sqlite3
+import locale
+
+# Configura o locale para o Brasil
+locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
+
+# Configurar o banco de dados
+conn = sqlite3.connect('notas.db')
+c = conn.cursor()
+c.execute('''
+          CREATE TABLE IF NOT EXISTS app_anotacoes
+          (id INTEGER PRIMARY KEY AUTOINCREMENT, 
+          data TEXT, 
+          procedimento TEXT, 
+          quant_procedimento INTEGER, 
+          quant_ampola INTEGER,
+          custo REAL,
+          local TEXT,
+          medico TEXT,
+          observacao TEXT)
+          ''')
+conn.commit()
+
+class MainWindow(QtWidgets.QWidget):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("MedNotas")
+        self.setGeometry(100, 100, 1200, 600)
+
+        self.create_widgets()
+        self.create_layout()
+        self.connect_signals()
+
+        self.editing = False
+        self.editing_id = None
+
+        self.atualizar_lista()
+
+    def create_widgets(self):
+        # Campos de entrada de dados
+        self.entry_data = QtWidgets.QLineEdit(self)
+        self.entry_procedimento = QtWidgets.QLineEdit(self)
+        self.entry_quant_procedimento = QtWidgets.QLineEdit(self)
+        self.entry_quant_ampola = QtWidgets.QLineEdit(self)
+        self.entry_custo = QtWidgets.QLineEdit(self)
+        self.entry_local = QtWidgets.QLineEdit(self)
+        self.entry_medico = QtWidgets.QLineEdit(self)
+        self.entry_observacao = QtWidgets.QLineEdit(self)
+        
+        # Campo de pesquisa
+        self.entry_pesquisa = QtWidgets.QLineEdit(self)
+        self.entry_pesquisa.setPlaceholderText("Pesquisar...")
+        self.entry_pesquisa.setStyleSheet("font-size: 16px; padding: 5px;")
+
+        # Botões
+        self.btn_novo = QtWidgets.QPushButton("Novo", self)
+        self.btn_alterar = QtWidgets.QPushButton("Alterar", self)
+        self.btn_gravar = QtWidgets.QPushButton("Gravar", self)
+        self.btn_apagar = QtWidgets.QPushButton("Apagar", self)
+        self.btn_pesquisar = QtWidgets.QPushButton("Pesquisar", self)
+
+        # Tabela
+        self.table = QtWidgets.QTableWidget(self)
+        self.table.setColumnCount(9)  # Ajustado para incluir a coluna 'Observação'
+        self.table.setHorizontalHeaderLabels(["ID", "Data", "Procedimento", "Quant. Procedimento", "Quant. Ampola", "Custo", "Local", "Médico", "Observação"])
+        self.table.horizontalHeader().setStretchLastSection(True)
+        self.table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+        self.table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+
+    def create_layout(self):
+        main_layout = QtWidgets.QVBoxLayout(self)
+        
+        # Layout de Pesquisa
+        pesquisa_layout = QtWidgets.QHBoxLayout()
+        pesquisa_layout.addWidget(self.entry_pesquisa)
+        pesquisa_layout.addWidget(self.btn_pesquisar)
+        main_layout.addLayout(pesquisa_layout)
+
+        # Layout de Entrada de Dados
+        form_layout = QtWidgets.QFormLayout()
+        form_layout.addRow("Data:", self.entry_data)
+        form_layout.addRow("Procedimento:", self.entry_procedimento)
+        form_layout.addRow("Quant Procedimento:", self.entry_quant_procedimento)
+        form_layout.addRow("Quant Ampola:", self.entry_quant_ampola)
+        form_layout.addRow("Custo (R$):", self.entry_custo)
+        form_layout.addRow("Local:", self.entry_local)
+        form_layout.addRow("Médico:", self.entry_medico)
+        form_layout.addRow("Observação:", self.entry_observacao)
+        main_layout.addLayout(form_layout)
+
+        # Layout de Botões
+        button_layout = QtWidgets.QHBoxLayout()
+        button_layout.addWidget(self.btn_novo)
+        button_layout.addWidget(self.btn_alterar)
+        button_layout.addWidget(self.btn_gravar)
+        button_layout.addWidget(self.btn_apagar)
+        main_layout.addLayout(button_layout)
+
+        # Tabela
+        main_layout.addWidget(self.table)
+
+    def connect_signals(self):
+        self.btn_novo.clicked.connect(self.adicionar_anotacao)
+        self.btn_alterar.clicked.connect(self.editar_anotacao)
+        self.btn_gravar.clicked.connect(self.atualizar_anotacao)
+        self.btn_apagar.clicked.connect(self.deletar_anotacao)
+        self.btn_pesquisar.clicked.connect(self.pesquisar_anotacoes)
+        
+        # Conectar a tecla Enter ao campo de pesquisa
+        self.entry_pesquisa.returnPressed.connect(self.pesquisar_anotacoes)
+
+    def adicionar_anotacao(self):
+        data = self.entry_data.text()
+        procedimento = self.entry_procedimento.text()
+        quant_procedimento = self.entry_quant_procedimento.text()
+        quant_ampola = self.entry_quant_ampola.text()
+        custo_str = self.entry_custo.text().strip()
+        observacao = self.entry_observacao.text()
+        
+        # Verificar e formatar a data se necessário
+        if '/' not in data:
+            data = f'{data[:2]}/{data[2:4]}/{data[4:]}' if len(data) == 8 else data
+        
+        # Remover prefixo "R$" e substituir "," por "."
+        if custo_str.startswith("R$"):
+            custo_str = custo_str[2:].strip()
+        custo_str = custo_str.replace('.', '').replace(',', '.')
+
+        try:
+            custo = float(custo_str) if custo_str else None
+        except ValueError:
+            QtWidgets.QMessageBox.warning(self, "Aviso", "Custo inválido. Certifique-se de usar um número válido para o campo Custo.")
+            return
+        
+        local = self.entry_local.text()
+        medico = self.entry_medico.text()
+        
+        if data and procedimento and quant_procedimento and quant_ampola and local:
+            c.execute('INSERT INTO app_anotacoes (data, procedimento, quant_procedimento, quant_ampola, custo, local, medico, observacao) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
+                      (data, procedimento, quant_procedimento, quant_ampola, custo, local, medico, observacao))
+            conn.commit()
+            QtWidgets.QMessageBox.information(self, "Sucesso", "Anotação adicionada com sucesso")
+            self.limpar_campos()
+            self.atualizar_lista()
+        else:
+            QtWidgets.QMessageBox.warning(self, "Aviso", "Por favor, preencha todos os campos obrigatórios")
+
+    def editar_anotacao(self):
+        try:
+            selected_item = self.table.currentRow()
+            selected_id = self.table.item(selected_item, 0).text()
+            
+            resposta = QtWidgets.QMessageBox.question(self, "Editar Anotação", f"Deseja editar o Registro {selected_id}?", QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+            
+            if resposta == QtWidgets.QMessageBox.Ok:
+                self.entry_data.setText(self.table.item(selected_item, 1).text())
+                self.entry_procedimento.setText(self.table.item(selected_item, 2).text())
+                self.entry_quant_procedimento.setText(self.table.item(selected_item, 3).text())
+                self.entry_quant_ampola.setText(self.table.item(selected_item, 4).text())
+                self.entry_custo.setText(self.table.item(selected_item, 5).text())
+                self.entry_local.setText(self.table.item(selected_item, 6).text())
+                self.entry_medico.setText(self.table.item(selected_item, 7).text())
+                self.entry_observacao.setText(self.table.item(selected_item, 8).text())
+                self.editing = True
+                self.editing_id = selected_id
+        except Exception:
+            QtWidgets.QMessageBox.warning(self, "Aviso", "Por favor, selecione uma anotação para editar")
+
+    def atualizar_anotacao(self):
+        if not self.editing_id:
+            QtWidgets.QMessageBox.warning(self, "Aviso", "Por favor, selecione uma anotação para atualizar")
+            return
+
+        try:
+            data = self.entry_data.text()
+            procedimento = self.entry_procedimento.text()
+            quant_procedimento = self.entry_quant_procedimento.text()
+            quant_ampola = self.entry_quant_ampola.text()
+            custo_str = self.entry_custo.text().strip()
+            observacao = self.entry_observacao.text()
+            
+            # Verificar e formatar a data se necessário
+            if '/' not in data:
+                data = f'{data[:2]}/{data[2:4]}/{data[4:]}' if len(data) == 8 else data
+            
+            # Remover prefixo "R$" e substituir "," por "."
+            if custo_str.startswith("R$"):
+                custo_str = custo_str[2:].strip()
+            custo_str = custo_str.replace('.', '').replace(',', '.')
+
+            try:
+                custo = float(custo_str) if custo_str else None
+            except ValueError:
+                QtWidgets.QMessageBox.warning(self, "Aviso", "Custo inválido. Certifique-se de usar um número válido para o campo Custo.")
+                return
+            
+            local = self.entry_local.text()
+            medico = self.entry_medico.text()
+            
+            if data and procedimento and quant_procedimento and quant_ampola and local:
+                c.execute('UPDATE app_anotacoes SET data=?, procedimento=?, quant_procedimento=?, quant_ampola=?, custo=?, local=?, medico=?, observacao=? WHERE id=?', 
+                        (data, procedimento, quant_procedimento, quant_ampola, custo, local, medico, observacao, self.editing_id))
+                conn.commit()
+                QtWidgets.QMessageBox.information(self, "Sucesso", "Anotação atualizada com sucesso")
+                self.limpar_campos()
+                self.atualizar_lista()
+                self.editing_id = None
+            else:
+                QtWidgets.QMessageBox.warning(self, "Aviso", "Por favor, preencha todos os campos obrigatórios")
+                
+        except ValueError:
+            QtWidgets.QMessageBox.warning(self, "Aviso", "Custo inválido. Certifique-se de usar um número válido para o campo Custo.")
+        except Exception as e:
+            print(str(e))  # Imprimir mensagem de erro para debug
+            QtWidgets.QMessageBox.warning(self, "Erro", "Ocorreu um erro ao atualizar a anotação")
+
+    def deletar_anotacao(self):
+        try:
+            selected_item = self.table.currentRow()
+            selected_id = self.table.item(selected_item, 0).text()
+            
+            resposta = QtWidgets.QMessageBox.question(self, "Deletar Anotação", f"Deseja deletar o Registro {selected_id}?", QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+            
+            if resposta == QtWidgets.QMessageBox.Ok:
+                c.execute('DELETE FROM app_anotacoes WHERE id=?', (selected_id,))
+                conn.commit()
+                QtWidgets.QMessageBox.information(self, "Sucesso", "Anotação deletada com sucesso")
+                self.limpar_campos()
+                self.atualizar_lista()
+        except Exception:
+            QtWidgets.QMessageBox.warning(self, "Aviso", "Por favor, selecione uma anotação para deletar")
+
+    def limpar_campos(self):
+        self.entry_data.clear()
+        self.entry_procedimento.clear()
+        self.entry_quant_procedimento.clear()
+        self.entry_quant_ampola.clear()
+        self.entry_custo.clear()
+        self.entry_local.clear()
+        self.entry_medico.clear()
+        self.entry_observacao.clear()
+
+    def atualizar_lista(self):
+        self.table.setRowCount(0)
+        c.execute('SELECT * FROM app_anotacoes')
+        rows = c.fetchall()
+        self.table.setRowCount(len(rows))
+        for row_index, row in enumerate(rows):
+            for column_index, data in enumerate(row):
+                if column_index == 5 and data is not None:
+                    data = locale.currency(data, grouping=True)
+                self.table.setItem(row_index, column_index, QtWidgets.QTableWidgetItem(str(data)))
+
+    def pesquisar_anotacoes(self):
+        termo_pesquisa = self.entry_pesquisa.text()
+        self.table.setRowCount(0)
+
+        if termo_pesquisa:
+            c.execute("SELECT * FROM app_anotacoes WHERE data LIKE ? OR procedimento LIKE ? OR local LIKE ? OR medico LIKE ? OR observacao LIKE ?", 
+                      (f'%{termo_pesquisa}%', f'%{termo_pesquisa}%', f'%{termo_pesquisa}%', f'%{termo_pesquisa}%', f'%{termo_pesquisa}%'))
+        else:
+            c.execute('SELECT * FROM app_anotacoes')
+
+        rows = c.fetchall()
+        self.table.setRowCount(len(rows))
+        for row_index, row in enumerate(rows):
+            for column_index, data in enumerate(row):
+                if column_index == 5 and data is not None:
+                    data = locale.currency(data, grouping=True)
+                self.table.setItem(row_index, column_index, QtWidgets.QTableWidgetItem(str(data)))
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    window = MainWindow()
+    
+    # Aplicar um tema de cores
+    app.setStyleSheet("""
+        QWidget {
+            background-color: #f0f0f0;
+            font-family: Arial;
+        }
+        QLineEdit {
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+            padding: 5px;
+            font-size: 14px;
+        }
+        QPushButton {
+            background-color: #007BFF;
+            color: white;
+            padding: 8px 10px;
+            border: none;
+            font-size: 14px;
+        }
+        QPushButton:hover {
+            background-color: #0056b3;
+        }
+        QTableWidget {
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+            padding: 5px;
+            font-size: 14px;
+        }
+        QLabel {
+            font-size: 14px;
+            font-weight: bold;
+        }
+    """)
+    
+    window.show()
+    sys.exit(app.exec_())
