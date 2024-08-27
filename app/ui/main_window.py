@@ -36,7 +36,7 @@ class MainWindow(QtWidgets.QWidget):
 
         # Botões
         self.btn_novo = QtWidgets.QPushButton("Novo", self)
-        self.btn_alterar = QtWidgets.QPushButton("Alterar", self)
+        self.btn_editar = QtWidgets.QPushButton("Editar", self)
         self.btn_gravar = QtWidgets.QPushButton("Gravar", self)
         self.btn_apagar = QtWidgets.QPushButton("Apagar", self)
         self.btn_pesquisar = QtWidgets.QPushButton("Pesquisar", self)
@@ -73,7 +73,7 @@ class MainWindow(QtWidgets.QWidget):
         # Layout de Botões
         button_layout = QtWidgets.QHBoxLayout()
         button_layout.addWidget(self.btn_novo)
-        button_layout.addWidget(self.btn_alterar)
+        button_layout.addWidget(self.btn_editar)
         button_layout.addWidget(self.btn_gravar)
         button_layout.addWidget(self.btn_apagar)
         main_layout.addLayout(button_layout)
@@ -84,8 +84,8 @@ class MainWindow(QtWidgets.QWidget):
 
     def connect_signals(self):
         self.btn_novo.clicked.connect(self.adicionar_anotacao)
-        self.btn_alterar.clicked.connect(self.editar_anotacao)
-        self.btn_gravar.clicked.connect(self.atualizar_anotacao)
+        self.btn_editar.clicked.connect(self.editar_anotacao)
+        self.btn_gravar.clicked.connect(self.gravar_anotacao)
         self.btn_apagar.clicked.connect(self.deletar_anotacao)
         self.btn_pesquisar.clicked.connect(self.pesquisar_anotacao)
         
@@ -141,10 +141,39 @@ class MainWindow(QtWidgets.QWidget):
             QtWidgets.QMessageBox.warning(self, "Aviso", "Por favor, selecione uma anotação para editar")
 
 
-    def atualizar_anotacao(self):
-        # Dependendo da funcionalidade, implemente a lógica necessária
-        # Por exemplo, confirmar mudanças ou atualizar campos específicos
-        pass
+    def gravar_anotacao(self):
+        if not self.editing_id:
+            QtWidgets.QMessageBox.warning(self, "Aviso", "Por favor, selecione uma anotação para atualizar")
+            return
+
+        # Verificação e formatação dos dados
+        try:
+            data = formatar_data(self.entry_data.text())
+            procedimento = self.entry_procedimento.text()
+            quant_procedimento = self.entry_quant_procedimento.text()
+            quant_ampola = self.entry_quant_ampola.text()
+            custo = formatar_custo(self.entry_custo.text())
+            observacao = self.entry_observacao.text()
+            local = self.entry_local.text()
+            medico = self.entry_medico.text()
+
+            if not data or not procedimento or not quant_procedimento or not quant_ampola or not local:
+                raise ValueError("Todos os campos obrigatórios devem ser preenchidos.")
+
+            # Chama o método do controlador para atualizar a anotação
+            self.controller.atualizar_anotacao(
+                self.editing_id,  # Inclua o ID da anotação a ser atualizada
+                data, procedimento, quant_procedimento,
+                quant_ampola, custo, local, medico, observacao
+            )
+
+            QtWidgets.QMessageBox.information(self, "Sucesso", "Anotação atualizada com sucesso")
+            self.limpar_campos()
+            self.atualizar_lista()
+
+        except ValueError as e:
+            QtWidgets.QMessageBox.warning(self, "Erro de Validação", str(e))
+
 
     def deletar_anotacao(self):
         # Verifica se há uma anotação selecionada
