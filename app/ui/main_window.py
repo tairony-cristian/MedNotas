@@ -204,11 +204,12 @@ class MainWindow(QtWidgets.QWidget):
         if not procedimento:
             QtWidgets.QMessageBox.warning(self, "Validação", "O campo Procedimento não pode estar vazio.")
             return False
-        if not quant_procedimento:
-            QtWidgets.QMessageBox.warning(self, "Validação", "O campo Quantidade de Procedimento não pode estar vazio.")
+        if not quant_procedimento or not quant_procedimento.isdigit():
+            QtWidgets.QMessageBox.warning(self, "Validação", "O campo Quantidade de Procedimento deve conter um valor numérico válido.")
             return False
-        if not quant_ampola:
-            QtWidgets.QMessageBox.warning(self, "Validação", "O campo Quantidade de Ampola não pode estar vazio.")
+
+        if not quant_ampola or not quant_ampola.isdigit():
+            QtWidgets.QMessageBox.warning(self, "Validação", "O campo Quantidade de Ampola deve conter um valor numérico válido.")
             return False
         if not local:
             QtWidgets.QMessageBox.warning(self, "Validação", "O campo Local não pode estar vazio.")
