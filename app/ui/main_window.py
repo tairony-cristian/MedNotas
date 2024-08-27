@@ -1,4 +1,5 @@
 from PyQt5 import QtWidgets
+from app.ui.utils import formatar_data, formatar_custo
 from app.controllers.anotacao_controller import AnotacaoController
 
 class MainWindow(QtWidgets.QWidget):
@@ -90,12 +91,16 @@ class MainWindow(QtWidgets.QWidget):
         
 
     def adicionar_anotacao(self):
+        # Verifica se todos os campos estão preenchidos
+        if not self.validar_campos():
+            return  # Se a validação falhar, não prossegue com a adição da anotação
+
         # Coleta os dados dos campos de entrada
-        data = self.entry_data.text()
+        data = formatar_data(self.entry_data.text())
         procedimento = self.entry_procedimento.text()
         quant_procedimento = self.entry_quant_procedimento.text()
         quant_ampola = self.entry_quant_ampola.text()
-        custo = self.entry_custo.text()
+        custo = formatar_custo(self.entry_custo.text())
         local = self.entry_local.text()
         medico = self.entry_medico.text()
         observacao = self.entry_observacao.text()
@@ -105,6 +110,12 @@ class MainWindow(QtWidgets.QWidget):
             data, procedimento, quant_procedimento,
             quant_ampola, custo, local, medico, observacao
         )
+
+        # Exibe uma mensagem de sucesso
+        QtWidgets.QMessageBox.information(self, "Sucesso", "Anotação adicionada com sucesso")
+
+        # Limpa os campos de entrada
+        self.limpar_campos()
 
         # Atualiza a lista na tabela
         self.atualizar_lista()
@@ -179,3 +190,39 @@ class MainWindow(QtWidgets.QWidget):
             self.table.insertRow(row_position)
             for column, value in enumerate(anotacao):
                 self.table.setItem(row_position, column, QtWidgets.QTableWidgetItem(str(value)))
+
+    def validar_campos(self):
+        data = self.entry_data.text().strip()
+        procedimento = self.entry_procedimento.text().strip()
+        quant_procedimento = self.entry_quant_procedimento.text().strip()
+        quant_ampola = self.entry_quant_ampola.text().strip()
+        local = self.entry_local.text().strip()
+
+        if not data:
+            QtWidgets.QMessageBox.warning(self, "Validação", "O campo Data não pode estar vazio.")
+            return False
+        if not procedimento:
+            QtWidgets.QMessageBox.warning(self, "Validação", "O campo Procedimento não pode estar vazio.")
+            return False
+        if not quant_procedimento:
+            QtWidgets.QMessageBox.warning(self, "Validação", "O campo Quantidade de Procedimento não pode estar vazio.")
+            return False
+        if not quant_ampola:
+            QtWidgets.QMessageBox.warning(self, "Validação", "O campo Quantidade de Ampola não pode estar vazio.")
+            return False
+        if not local:
+            QtWidgets.QMessageBox.warning(self, "Validação", "O campo Local não pode estar vazio.")
+            return False
+
+        return True
+    
+    def limpar_campos(self):
+        self.entry_data.clear()
+        self.entry_procedimento.clear()
+        self.entry_quant_procedimento.clear()
+        self.entry_quant_ampola.clear()
+        self.entry_custo.clear()
+        self.entry_local.clear()
+        self.entry_medico.clear()
+        self.entry_observacao.clear()
+

@@ -15,13 +15,6 @@ def formatar_custo(custo_str):
     except ValueError:
         raise ValueError("Custo inválido. Certifique-se de usar um número válido para o campo Custo.")
     
-def validar_campos(self):
-        data = self.entry_data.text()
-        procedimento = self.entry_procedimento.text()
-        quant_procedimento = self.entry_quant_procedimento.text()
-        quant_ampola = self.entry_quant_ampola.text()
-        local = self.entry_local.text()
-        return data and procedimento and quant_procedimento and quant_ampola and local
 
 def preencher_campos(self, row_data):
         self.entry_data.setText(row_data[1])
@@ -33,15 +26,7 @@ def preencher_campos(self, row_data):
         self.entry_medico.setText(row_data[7])
         self.entry_observacao.setText(row_data[8])
 
-def limpar_campos(self):
-        self.entry_data.clear()
-        self.entry_procedimento.clear()
-        self.entry_quant_procedimento.clear()
-        self.entry_quant_ampola.clear()
-        self.entry_custo.clear()
-        self.entry_local.clear()
-        self.entry_medico.clear()
-        self.entry_observacao.clear()
+
 
 def atualizar_tabela(self, rows):
         self.table.setRowCount(len(rows))
@@ -50,3 +35,4 @@ def atualizar_tabela(self, rows):
                 if column_index == 5 and data is not None:
                     data = locale.currency(data, grouping=True)
                 self.table.setItem(row_index, column_index, QtWidgets.QTableWidgetItem(str(data)))
+
