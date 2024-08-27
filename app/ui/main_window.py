@@ -91,63 +91,55 @@ class MainWindow(QtWidgets.QWidget):
         
 
     def adicionar_anotacao(self):
-        # Verifica se todos os campos estão preenchidos
         if not self.validar_campos():
-            return  # Se a validação falhar, não prossegue com a adição da anotação
+            return
 
-        # Coleta os dados dos campos de entrada
-        data = formatar_data(self.entry_data.text())
-        procedimento = self.entry_procedimento.text()
-        quant_procedimento = self.entry_quant_procedimento.text()
-        quant_ampola = self.entry_quant_ampola.text()
-        custo = formatar_custo(self.entry_custo.text())
-        local = self.entry_local.text()
-        medico = self.entry_medico.text()
-        observacao = self.entry_observacao.text()
-
-        # Chama o método do controlador para adicionar a anotação
-        self.controller.adicionar_anotacao(
-            data, procedimento, quant_procedimento,
-            quant_ampola, custo, local, medico, observacao
-        )
-
-        # Exibe uma mensagem de sucesso
-        QtWidgets.QMessageBox.information(self, "Sucesso", "Anotação adicionada com sucesso")
-
-        # Limpa os campos de entrada
-        self.limpar_campos()
-
-        # Atualiza a lista na tabela
-        self.atualizar_lista()
-
-    def editar_anotacao(self):
-        # Verifica se há uma anotação selecionada
-        selected_items = self.table.selectedItems()
-        if selected_items:
-            row = selected_items[0].row()
-            id_anotacao = self.table.item(row, 0).text()
-
-            # Coleta os dados atualizados dos campos de entrada
-            data = self.entry_data.text()
+        try:
+            # Coleta os dados dos campos de entrada
+            data = formatar_data(self.entry_data.text())
             procedimento = self.entry_procedimento.text()
             quant_procedimento = self.entry_quant_procedimento.text()
             quant_ampola = self.entry_quant_ampola.text()
-            custo = self.entry_custo.text()
+            custo = formatar_custo(self.entry_custo.text())
             local = self.entry_local.text()
             medico = self.entry_medico.text()
             observacao = self.entry_observacao.text()
 
-            # Chama o método do controlador para editar a anotação
-            self.controller.editar_anotacao(
-                id_anotacao, data, procedimento,
-                quant_procedimento, quant_ampola,
-                custo, local, medico, observacao
+            # Chama o método do controlador para adicionar a anotação
+            self.controller.adicionar_anotacao(
+                data, procedimento, quant_procedimento,
+                quant_ampola, custo, local, medico, observacao
             )
 
-            # Atualiza a lista na tabela
+            QtWidgets.QMessageBox.information(self, "Sucesso", "Anotação adicionada com sucesso")
+            self.limpar_campos()
             self.atualizar_lista()
-        else:
-            QtWidgets.QMessageBox.warning(self, "Aviso", "Nenhuma anotação selecionada para editar.")
+        
+        except ValueError as e:
+            QtWidgets.QMessageBox.warning(self, "Erro de Validação", str(e))
+
+
+    def editar_anotacao(self):
+        try:
+            selected_item = self.table.currentRow()
+            selected_id = self.table.item(selected_item, 0).text()
+            
+            resposta = QtWidgets.QMessageBox.question(self, "Editar Anotação", f"Deseja editar o Registro {selected_id}?", QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+            
+            if resposta == QtWidgets.QMessageBox.Ok:
+                self.entry_data.setText(self.table.item(selected_item, 1).text())
+                self.entry_procedimento.setText(self.table.item(selected_item, 2).text())
+                self.entry_quant_procedimento.setText(self.table.item(selected_item, 3).text())
+                self.entry_quant_ampola.setText(self.table.item(selected_item, 4).text())
+                self.entry_custo.setText(self.table.item(selected_item, 5).text())
+                self.entry_local.setText(self.table.item(selected_item, 6).text())
+                self.entry_medico.setText(self.table.item(selected_item, 7).text())
+                self.entry_observacao.setText(self.table.item(selected_item, 8).text())
+                self.editing = True
+                self.editing_id = selected_id
+        except Exception:
+            QtWidgets.QMessageBox.warning(self, "Aviso", "Por favor, selecione uma anotação para editar")
+
 
     def atualizar_anotacao(self):
         # Dependendo da funcionalidade, implemente a lógica necessária

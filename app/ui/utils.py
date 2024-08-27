@@ -7,16 +7,22 @@ def formatar_data(data):
     return data
 
 def formatar_custo(custo_str):
-    if custo_str.startswith("R$"):
-        custo_str = custo_str[2:].strip()  # Remove 'R$' e espaços extras
-    custo_str = custo_str.replace('.', '').replace(',', '.')  # Substitui '.' por ',' e vice-versa
     try:
-        # Converte a string para float
-        valor = float(custo_str) if custo_str else 0.0
+        if custo_str.startswith("R$"):
+            custo_str = custo_str[2:].strip()  # Remove 'R$' e espaços extras
+        custo_str = custo_str.replace('.', '').replace(',', '.')  # Substitui '.' por ',' e vice-versa
+        
+        if custo_str:
+            valor = float(custo_str)
+        else:
+            valor = 0.0
+        
         # Formata o valor como string com o prefixo 'R$'
         return f'R$ {valor:,.2f}'.replace('.', ',')
+    
     except ValueError:
         raise ValueError("Custo inválido. Certifique-se de usar um número válido para o campo Custo.")
+
 
     
 
