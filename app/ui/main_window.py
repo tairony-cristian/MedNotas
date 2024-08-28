@@ -1,5 +1,6 @@
 from PyQt5 import QtWidgets
 from app.ui.utils import formatar_data, formatar_custo
+from app.models.anotacao import Anotacao
 from app.controllers.anotacao_controller import AnotacaoController
 
 class MainWindow(QtWidgets.QWidget):
@@ -93,7 +94,6 @@ class MainWindow(QtWidgets.QWidget):
     def adicionar_anotacao(self):
         if not self.validar_campos():
             return
-
         try:
             # Coleta os dados dos campos de entrada
             data = formatar_data(self.entry_data.text())
@@ -105,19 +105,25 @@ class MainWindow(QtWidgets.QWidget):
             medico = self.entry_medico.text()
             observacao = self.entry_observacao.text()
 
+            # Cria o objeto Anotacao com os dados coletados
+            anotacao = Anotacao(
+            data=data,
+            procedimento=procedimento,
+            quant_procedimento=quant_procedimento,
+            quant_ampola=quant_ampola,
+            custo=custo,
+            local=local,
+            medico=medico,
+            observacao=observacao
+        )
             # Chama o método do controlador para adicionar a anotação
-            self.controller.adicionar_anotacao(
-                data, procedimento, quant_procedimento,
-                quant_ampola, custo, local, medico, observacao
-            )
+            self.controller.adicionar_anotacao(anotacao)
 
             QtWidgets.QMessageBox.information(self, "Sucesso", "Anotação adicionada com sucesso")
             self.limpar_campos()
             self.atualizar_lista()
-        
         except ValueError as e:
             QtWidgets.QMessageBox.warning(self, "Erro de Validação", str(e))
-
 
     def editar_anotacao(self):
         try:
@@ -140,7 +146,6 @@ class MainWindow(QtWidgets.QWidget):
         except Exception:
             QtWidgets.QMessageBox.warning(self, "Aviso", "Por favor, selecione uma anotação para editar")
 
-
     def gravar_anotacao(self):
         if not self.editing_id:
             QtWidgets.QMessageBox.warning(self, "Aviso", "Por favor, selecione uma anotação para atualizar")
@@ -159,13 +164,23 @@ class MainWindow(QtWidgets.QWidget):
 
             if not data or not procedimento or not quant_procedimento or not quant_ampola or not local:
                 raise ValueError("Todos os campos obrigatórios devem ser preenchidos.")
+            
+            # Cria o objeto Anotacao com os dados coletados
+            anotacao = Anotacao(
+            data=data,
+            procedimento=procedimento,
+            quant_procedimento=quant_procedimento,
+            quant_ampola=quant_ampola,
+            custo=custo,
+            local=local,
+            medico=medico,
+            observacao=observacao
+        )
 
             # Chama o método do controlador para atualizar a anotação
             self.controller.atualizar_anotacao(
                 self.editing_id,  # Inclua o ID da anotação a ser atualizada
-                data, procedimento, quant_procedimento,
-                quant_ampola, custo, local, medico, observacao
-            )
+                anotacao)
 
             QtWidgets.QMessageBox.information(self, "Sucesso", "Anotação atualizada com sucesso")
             self.limpar_campos()
