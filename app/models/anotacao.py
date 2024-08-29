@@ -1,5 +1,6 @@
 class Anotacao:
-    def __init__(self, data, procedimento, quant_procedimento, quant_ampola, custo, local, medico, observacao):
+    def __init__(self, id, data, procedimento, quant_procedimento, quant_ampola, custo, local, medico, observacao):
+        self.id = id
         self.data = data
         self.procedimento = procedimento
         self.quant_procedimento = quant_procedimento
@@ -8,5 +9,3 @@ class Anotacao:
         self.local = local
         self.medico = medico
         self.observacao = observacao
-
-
