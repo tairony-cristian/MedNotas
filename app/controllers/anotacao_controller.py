@@ -11,9 +11,13 @@ class AnotacaoController:
     def adicionar_anotacao(self):
         """ Adiciona uma nova anotação ao banco de dados. """
         if Utils.validar_campos(self.main_window):
-            anotacao = self._get_anotacao_from_inputs()
-            self.db.adicionar_anotacao(anotacao)
-            self._atualizar_lista()
+            try:
+                anotacao = self._get_anotacao_from_inputs()
+                self.db.adicionar_anotacao(anotacao)
+                self._atualizar_lista()
+                QtWidgets.QMessageBox.information(self.main_window, "Sucesso", "Anotação adicionada com sucesso!")
+            except Exception as e:
+                QtWidgets.QMessageBox.critical(self.main_window, "Erro", f"Erro ao adicionar anotação: {str(e)}")
 
     def editar_anotacao(self):
         """ Ativa o modo de edição de uma anotação existente. """
@@ -24,32 +28,48 @@ class AnotacaoController:
             anotacao = self.db.buscar_anotacao_por_id(self.main_window.editing_id)
             if anotacao:
                 self._preencher_campos(anotacao)
+            else:
+                QtWidgets.QMessageBox.warning(self.main_window, "Erro", "Anotação não encontrada.")
 
     def gravar_anotacao(self):
         """ Salva as alterações em uma anotação existente ou adiciona uma nova. """
         if Utils.validar_campos(self.main_window):
-            if self.main_window.editing:
-                anotacao = self._get_anotacao_from_inputs()
-                self.db.atualizar_anotacao(self.main_window.editing_id, anotacao)
-            else:
-                self.adicionar_anotacao()
-            self.main_window.editing = False
-            self.main_window.editing_id = None
-            self._atualizar_lista()
+            try:
+                if self.main_window.editing:
+                    anotacao = self._get_anotacao_from_inputs()
+                    self.db.atualizar_anotacao(self.main_window.editing_id, anotacao)
+                    QtWidgets.QMessageBox.information(self.main_window, "Sucesso", "Anotação atualizada com sucesso!")
+                else:
+                    self.adicionar_anotacao()
+                self.main_window.editing = False
+                self.main_window.editing_id = None
+                self._atualizar_lista()
+            except Exception as e:
+                QtWidgets.QMessageBox.critical(self.main_window, "Erro", f"Erro ao salvar anotação: {str(e)}")
 
     def deletar_anotacao(self):
         """ Deleta uma anotação selecionada. """
         selected_items = self.main_window.table.selectedItems()
         if selected_items:
             id_anotacao = selected_items[0].text()
-            self.db.deletar_anotacao(id_anotacao)
-            self._atualizar_lista()
+            try:
+                self.db.deletar_anotacao(id_anotacao)
+                self._atualizar_lista()
+                QtWidgets.QMessageBox.information(self.main_window, "Sucesso", "Anotação deletada com sucesso!")
+            except Exception as e:
+                QtWidgets.QMessageBox.critical(self.main_window, "Erro", f"Erro ao deletar anotação: {str(e)}")
 
     def pesquisar_anotacao(self):
         """ Pesquisa anotações com base no termo fornecido. """
         termo_pesquisa = self.main_window.entry_pesquisa.text()
-        anotações = self.db.buscar_anotacao(termo_pesquisa)
-        self._atualizar_tabela(anotações)
+        try:
+            anotações = self.db.buscar_anotacao(termo_pesquisa)
+            if anotações:
+                self._atualizar_tabela(anotações)
+            else:
+                QtWidgets.QMessageBox.information(self.main_window, "Resultado", "Nenhuma anotação encontrada.")
+        except Exception as e:
+            QtWidgets.QMessageBox.critical(self.main_window, "Erro", f"Erro ao pesquisar anotações: {str(e)}")
 
     def _get_anotacao_from_inputs(self):
         """ Cria uma instância de Anotacao a partir dos campos de entrada. """
@@ -78,16 +98,17 @@ class AnotacaoController:
 
     def _atualizar_lista(self):
         """ Atualiza a lista de anotações exibida na interface. """
-        anotações = self.db.listar_anotacoes()
-        self._atualizar_tabela(anotações)
+        try:
+            anotações = self.db.listar_anotacoes()
+            self._atualizar_tabela(anotações)
+        except Exception as e:
+            QtWidgets.QMessageBox.critical(self.main_window, "Erro", f"Erro ao atualizar lista de anotações: {str(e)}")
 
     def _atualizar_tabela(self, anotações):
-        """ Atualiza a tabela na interface com as anotações fornecidas. """
-        table = self.main_window.table
-        table.setRowCount(0)
+        """ Atualiza a tabela na interface com os dados das anotações. """
+        self.main_window.table.setRowCount(0)
         for anotacao in anotações:
-            row = table.rowCount()
-            table.insertRow(row)
-            for column, data in enumerate(anotacao):
-                item = QtWidgets.QTableWidgetItem(str(data))
-                table.setItem(row, column, item)
+            row_position = self.main_window.table.rowCount()
+            self.main_window.table.insertRow(row_position)
+            for i, data in enumerate(anotacao):
+                self.main_window.table.setItem(row_position, i, QtWidgets.QTableWidgetItem(str(data)))
