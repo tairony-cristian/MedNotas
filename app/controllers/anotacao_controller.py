@@ -93,6 +93,7 @@ class AnotacaoController:
             custo=Utils.formatar_custo(self.main_window.entry_custo.text()),
             local=self.main_window.entry_local.text(),
             medico=self.main_window.entry_medico.text(),
+            nota_fiscal=self.main_window.entry_nota_fiscal.text(),
             observacao=self.main_window.entry_observacao.text()
         )
 
@@ -105,7 +106,8 @@ class AnotacaoController:
         self.main_window.entry_custo.setText(Utils.formatar_custo(str(anotacao[5])))
         self.main_window.entry_local.setText(anotacao[6])
         self.main_window.entry_medico.setText(anotacao[7])
-        self.main_window.entry_observacao.setText(anotacao[8])
+        self.main_window.entry_nota_fiscal.setText(anotacao[8])
+        self.main_window.entry_observacao.setText(anotacao[9])
 
     def _atualizar_lista(self):
         """ Atualiza a lista de anotações exibida na interface. """

@@ -24,7 +24,9 @@ class DatabaseConnection:
                     custo REAL,
                     local TEXT,
                     medico TEXT,
+                    nota_fiscal TEXT,
                     observacao TEXT
+                    
                 )
             ''')
             self.connection.commit()
@@ -63,13 +65,13 @@ class DatabaseConnection:
         """ Adiciona uma nova anotação ao banco de dados. """
         sql = '''
             INSERT INTO app_anotacoes 
-            (data, procedimento, quant_procedimento, quant_ampola, custo, local, medico, observacao)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            (data, procedimento, quant_procedimento, quant_ampola, custo, local, medico, nota_fiscal, observacao)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         '''
         params = (
             anotacao['data'], anotacao['procedimento'], anotacao['quant_procedimento'], 
             anotacao['quant_ampola'], anotacao['custo'], anotacao['local'], 
-            anotacao['medico'], anotacao['observacao']
+            anotacao['medico'], anotacao['nota_fiscal'], anotacao['observacao'] 
         )
         self._execute_sql(sql, params)
 
@@ -78,13 +80,13 @@ class DatabaseConnection:
         sql = '''
             UPDATE app_anotacoes SET 
             data = ?, procedimento = ?, quant_procedimento = ?, 
-            quant_ampola = ?, custo = ?, local = ?, medico = ?, observacao = ?
+            quant_ampola = ?, custo = ?, local = ?, medico = ?, nota_fiscal = ?, observacao = ?
             WHERE id = ?
         '''
         params = (
             anotacao['data'], anotacao['procedimento'], anotacao['quant_procedimento'], 
             anotacao['quant_ampola'], anotacao['custo'], anotacao['local'], 
-            anotacao['medico'], anotacao['observacao'], id
+            anotacao['medico'], anotacao['nota_fiscal'], anotacao['observacao'], id
         )
         self._execute_sql(sql, params)
 

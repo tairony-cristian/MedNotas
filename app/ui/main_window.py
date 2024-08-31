@@ -32,8 +32,8 @@ class MainWindow(QtWidgets.QWidget):
 
         # Tabela
         self.table = QtWidgets.QTableWidget(self)
-        self.table.setColumnCount(9)
-        self.table.setHorizontalHeaderLabels(["ID", "Data", "Procedimento", "Quant. Procedimento", "Quant. Ampola", "Custo", "Local", "Médico", "Observação"])
+        self.table.setColumnCount(10)
+        self.table.setHorizontalHeaderLabels(["ID", "Data", "Procedimento", "Quant. Procedimento", "Quant. Ampola", "Custo", "Local", "Médico", "Nota Fiscal", "Observação"])
         self.table.horizontalHeader().setStretchLastSection(True)
         self.table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)

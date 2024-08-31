@@ -24,6 +24,7 @@ class EditAnnotationDialog(QtWidgets.QDialog):
         self.entry_custo = QtWidgets.QLineEdit()
         self.entry_local = QtWidgets.QLineEdit()
         self.entry_medico = QtWidgets.QLineEdit()
+        self.entry_nota_fiscal = QtWidgets.QTextEdit()
         self.entry_observacao = QtWidgets.QTextEdit()
 
         # Adiciona os campos ao layout
@@ -41,8 +42,11 @@ class EditAnnotationDialog(QtWidgets.QDialog):
         layout.addWidget(self.entry_local)
         layout.addWidget(QtWidgets.QLabel("Médico:"))
         layout.addWidget(self.entry_medico)
+        layout.addWidget(QtWidgets.QLabel("Nota Fiscal:"))
+        layout.addWidget(self.entry_nota_fiscal)
         layout.addWidget(QtWidgets.QLabel("Observação:"))
         layout.addWidget(self.entry_observacao)
+        
 
         # Botões
         button_layout = QtWidgets.QHBoxLayout()
@@ -72,6 +76,7 @@ class EditAnnotationDialog(QtWidgets.QDialog):
         self.entry_custo.setText(Utils.formatar_custo(anotacao['custo']))
         self.entry_local.setText(anotacao['local'])
         self.entry_medico.setText(anotacao['medico'])
+        self.entry_nota_fiscal.setText(anotacao['nota_fiscal'])
         self.entry_observacao.setText(anotacao['observacao'])
 
     def save_changes(self):
@@ -92,5 +97,6 @@ class EditAnnotationDialog(QtWidgets.QDialog):
             'custo': Utils.formatar_custo(self.entry_custo.text()),
             'local': self.entry_local.text(),
             'medico': self.entry_medico.text(),
+            'nota_fiscal': self.entry_nota_fiscal.toPlainText(),
             'observacao': self.entry_observacao.toPlainText()
         }
