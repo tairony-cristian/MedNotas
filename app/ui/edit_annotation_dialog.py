@@ -76,25 +76,21 @@ class EditAnnotationDialog(QtWidgets.QDialog):
 
     def save_changes(self):
         """ Salva as alterações feitas nos campos de entrada. """
-        if Utils.validar_campos(self.parent):
-            updated_anotacao = {
-                'data': Utils.formatar_data(self.entry_data.text()),
-                'procedimento': self.entry_procedimento.text(),
-                'quant_procedimento': self.entry_quant_procedimento.value(),
-                'quant_ampola': self.entry_quant_ampola.value(),
-                'custo': Utils.formatar_custo(self.entry_custo.text()),
-                'local': self.entry_local.text(),
-                'medico': self.entry_medico.text(),
-                'observacao': self.entry_observacao.toPlainText()
-            }
-            try:
-                db = self.parent.db_connection
-                if self.anotacao:
-                    db.atualizar_anotacao(self.anotacao['id'], updated_anotacao)
-                else:
-                    db.adicionar_anotacao(updated_anotacao)
-                self.accept()
-            except Exception as e:
-                QtWidgets.QMessageBox.warning(self, "Erro", f"Erro ao salvar anotação: {e}")
+        if Utils.validar_campos(self):
+            self.accept()  # Fecha o diálogo e indica que as alterações foram aceitas
         else:
             QtWidgets.QMessageBox.warning(self, "Validação", "Por favor, preencha todos os campos obrigatórios.")
+
+
+    def get_anotacao(self):
+        """ Retorna os dados da anotação do diálogo. """
+        return {
+            'data': Utils.formatar_data(self.entry_data.text()),
+            'procedimento': self.entry_procedimento.text(),
+            'quant_procedimento': self.entry_quant_procedimento.value(),
+            'quant_ampola': self.entry_quant_ampola.value(),
+            'custo': Utils.formatar_custo(self.entry_custo.text()),
+            'local': self.entry_local.text(),
+            'medico': self.entry_medico.text(),
+            'observacao': self.entry_observacao.toPlainText()
+        }

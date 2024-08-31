@@ -26,15 +26,16 @@ class Utils:
             raise ValueError("Custo inválido. Certifique-se de usar um número válido no formato R$ x.xxx,xx.")
 
     @staticmethod
-    def validar_campos(main_window):
-        """ Valida se todos os campos obrigatórios estão preenchidos. """
+    def validar_campos(dialog):
+        """ Valida se todos os campos obrigatórios estão preenchidos no diálogo fornecido. """
         try:
             campos_obrigatorios = {
-                "Data": main_window.entry_data.text(),
-                "Procedimento": main_window.entry_procedimento.text(),
-                "Quantidade de Procedimento": main_window.entry_quant_procedimento.text(),
-                "Quantidade de Ampola": main_window.entry_quant_ampola.text(),
-                "Local": main_window.entry_local.text(),
+                "Data": dialog.entry_data.text(),
+                "Procedimento": dialog.entry_procedimento.text(),
+                "Quantidade de Procedimento": dialog.entry_quant_procedimento.text(),
+                "Quantidade de Ampola": dialog.entry_quant_ampola.text(),
+                "Local": dialog.entry_local.text(),
+                "Medico": dialog.entry_medico.text(),
             }
 
             for campo, valor in campos_obrigatorios.items():
@@ -47,8 +48,9 @@ class Utils:
             return True
 
         except ValueError as e:
-            QtWidgets.QMessageBox.warning(main_window, "Validação", str(e))
+            QtWidgets.QMessageBox.warning(dialog, "Validação", str(e))
             return False
+
 
     @staticmethod
     def _validar_quantidade(quantidade):

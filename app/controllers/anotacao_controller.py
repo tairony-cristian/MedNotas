@@ -2,6 +2,7 @@ from PyQt5 import QtWidgets
 from models.anotacao import Anotacao
 from database import DatabaseConnection
 from ui.utils import Utils
+from ui.edit_annotation_dialog import EditAnnotationDialog
 
 class AnotacaoController:
     def __init__(self, main_window):
@@ -10,9 +11,11 @@ class AnotacaoController:
     
     def adicionar_anotacao(self):
         """ Adiciona uma nova anotação ao banco de dados. """
-        if Utils.validar_campos(self.main_window):
+        dialog = EditAnnotationDialog(self.main_window)
+        if dialog.exec_() == QtWidgets.QDialog.Accepted:
             try:
-                anotacao = self._get_anotacao_from_inputs()
+                anotacao = dialog.get_anotacao()  # Certifique-se de que get_anotacao retorna um dicionário
+                # Passa o dicionário diretamente ao método que insere no banco de dados
                 self.db.adicionar_anotacao(anotacao)
                 self._atualizar_lista()
                 QtWidgets.QMessageBox.information(self.main_window, "Sucesso", "Anotação adicionada com sucesso!")
@@ -23,11 +26,19 @@ class AnotacaoController:
         """ Ativa o modo de edição de uma anotação existente. """
         selected_items = self.main_window.table.selectedItems()
         if selected_items:
-            self.main_window.editing = True
-            self.main_window.editing_id = selected_items[0].text()
-            anotacao = self.db.buscar_anotacao_por_id(self.main_window.editing_id)
+            id_anotacao = selected_items[0].text()
+            anotacao = self.db.buscar_anotacao_por_id(id_anotacao)
             if anotacao:
-                self._preencher_campos(anotacao)
+                dialog = EditAnnotationDialog(self.main_window, anotacao)
+                if dialog.exec_() == QtWidgets.QDialog.Accepted:
+                    try:
+                        updated_anotacao = dialog.get_anotacao()  # Certifique-se de que get_anotacao retorna um dicionário
+                        # Atualiza a anotação no banco de dados usando o dicionário
+                        self.db.atualizar_anotacao(id_anotacao, updated_anotacao)
+                        self._atualizar_lista()
+                        QtWidgets.QMessageBox.information(self.main_window, "Sucesso", "Anotação atualizada com sucesso!")
+                    except Exception as e:
+                        QtWidgets.QMessageBox.critical(self.main_window, "Erro", f"Erro ao atualizar anotação: {str(e)}")
             else:
                 QtWidgets.QMessageBox.warning(self.main_window, "Erro", "Anotação não encontrada.")
 

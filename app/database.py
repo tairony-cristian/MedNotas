@@ -67,9 +67,9 @@ class DatabaseConnection:
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         '''
         params = (
-            anotacao.data, anotacao.procedimento, anotacao.quant_procedimento, 
-            anotacao.quant_ampola, anotacao.custo, anotacao.local, 
-            anotacao.medico, anotacao.observacao
+            anotacao['data'], anotacao['procedimento'], anotacao['quant_procedimento'], 
+            anotacao['quant_ampola'], anotacao['custo'], anotacao['local'], 
+            anotacao['medico'], anotacao['observacao']
         )
         self._execute_sql(sql, params)
 
@@ -82,11 +82,12 @@ class DatabaseConnection:
             WHERE id = ?
         '''
         params = (
-            anotacao.data, anotacao.procedimento, anotacao.quant_procedimento, 
-            anotacao.quant_ampola, anotacao.custo, anotacao.local, 
-            anotacao.medico, anotacao.observacao, id
+            anotacao['data'], anotacao['procedimento'], anotacao['quant_procedimento'], 
+            anotacao['quant_ampola'], anotacao['custo'], anotacao['local'], 
+            anotacao['medico'], anotacao['observacao'], id
         )
         self._execute_sql(sql, params)
+
 
     def buscar_anotacao(self, termo_pesquisa):
         """ Busca anotações no banco de dados com base em um termo de pesquisa. """
@@ -104,10 +105,14 @@ class DatabaseConnection:
         try:
             self.cursor.execute(sql, (id_anotacao,))
             result = self.cursor.fetchone()
-            return result
+            if result:
+                columns = [column[0] for column in self.cursor.description]
+                return dict(zip(columns, result))
+            return None
         except sqlite3.Error as e:
             print(f"Erro ao buscar anotação por ID: {e}")
             raise
+
 
     def listar_anotacoes(self):
         """ Lista todas as anotações no banco de dados. """
