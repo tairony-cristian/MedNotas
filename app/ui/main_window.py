@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtCore
 from controllers.anotacao_controller import AnotacaoController
 
 class MainWindow(QtWidgets.QWidget):
@@ -19,6 +19,8 @@ class MainWindow(QtWidgets.QWidget):
         self.controller._atualizar_lista()
 
     def create_widgets(self):
+        # Configure o locale para Português
+        locale = QtCore.QLocale(QtCore.QLocale.Portuguese, QtCore.QLocale.Brazil)
 
         # Campo de pesquisa
         self.combo_pesquisa = QtWidgets.QComboBox(self)
@@ -30,10 +32,12 @@ class MainWindow(QtWidgets.QWidget):
         self.date_inicial = QtWidgets.QDateEdit(self)
         self.date_inicial.setCalendarPopup(True)
         self.date_inicial.setDisplayFormat("dd/MM/yyyy")  # Define o formato de exibição
+        self.date_inicial.setLocale(locale)  # Ajusta o locale
 
         self.date_final = QtWidgets.QDateEdit(self)
         self.date_final.setCalendarPopup(True)
         self.date_final.setDisplayFormat("dd/MM/yyyy")  # Define o formato de exibição
+        self.date_final.setLocale(locale)  # Ajusta o locale
 
         self.label_data_inicial = QtWidgets.QLabel("Data Inicial:", self)
         self.label_data_final = QtWidgets.QLabel("Data Final:", self)
@@ -88,6 +92,7 @@ class MainWindow(QtWidgets.QWidget):
         self.btn_apagar.clicked.connect(self.controller.deletar_anotacao)
         self.btn_pesquisar.clicked.connect(self.controller.pesquisar_anotacao)
         self.combo_pesquisa.currentIndexChanged.connect(self.update_search_fields)
+        self.entry_pesquisa.returnPressed.connect(self.controller.pesquisar_anotacao)
 
     def update_search_fields(self):
         """ Atualiza os campos de entrada conforme a seleção no combobox. """

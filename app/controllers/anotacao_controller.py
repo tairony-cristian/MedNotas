@@ -41,7 +41,10 @@ class AnotacaoController:
                         QtWidgets.QMessageBox.critical(self.main_window, "Erro", f"Erro ao atualizar anotação: {str(e)}")
             else:
                 QtWidgets.QMessageBox.warning(self.main_window, "Erro", "Anotação não encontrada.")
-
+        else:
+            # Exibe uma mensagem se nenhum item estiver selecionado
+            QtWidgets.QMessageBox.warning(self.main_window, "Nenhum item selecionado", "Por favor, selecione uma anotação para editar.")
+            
     def gravar_anotacao(self):
         """ Salva as alterações em uma anotação existente ou adiciona uma nova. """
         if Utils.validar_campos(self.main_window):

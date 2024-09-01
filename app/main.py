@@ -1,6 +1,3 @@
-# Quando clicar em editar anotação verificar se tem algum campo selecionado senão exibir 
-# mensagem para selecionar um registro para editar
-
 import sys
 import locale
 from PyQt5 import QtWidgets
