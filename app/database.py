@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import datetime
 
 class DatabaseConnection:
     def __init__(self, db_name="notas.db"):
@@ -26,7 +27,6 @@ class DatabaseConnection:
                     medico TEXT,
                     nota_fiscal TEXT,
                     observacao TEXT
-                    
                 )
             ''')
             self.connection.commit()
@@ -73,7 +73,11 @@ class DatabaseConnection:
             anotacao['quant_ampola'], anotacao['custo'], anotacao['local'], 
             anotacao['medico'], anotacao['nota_fiscal'], anotacao['observacao'] 
         )
-        self._execute_sql(sql, params)
+        try:
+            self._execute_sql(sql, params)
+        except sqlite3.Error as e:
+            print(f"Erro ao adicionar anotação: {e}")
+            raise
 
     def atualizar_anotacao(self, id, anotacao):
         """ Atualiza uma anotação existente com base no ID. """
@@ -88,18 +92,25 @@ class DatabaseConnection:
             anotacao['quant_ampola'], anotacao['custo'], anotacao['local'], 
             anotacao['medico'], anotacao['nota_fiscal'], anotacao['observacao'], id
         )
-        self._execute_sql(sql, params)
-
+        try:
+            self._execute_sql(sql, params)
+        except sqlite3.Error as e:
+            print(f"Erro ao atualizar anotação: {e}")
+            raise
 
     def buscar_anotacao(self, termo_pesquisa):
         """ Busca anotações no banco de dados com base em um termo de pesquisa. """
         sql = '''
             SELECT * FROM app_anotacoes 
             WHERE data LIKE ? OR procedimento LIKE ? OR local LIKE ? 
-            OR medico LIKE ? OR observacao LIKE ?
+            OR medico LIKE ? OR nota_fiscal LIKE ? OR observacao LIKE ?
         '''
-        params = (f'%{termo_pesquisa}%',) * 5
-        return self._fetch_all(sql, params)
+        params = (f'%{termo_pesquisa}%',) * 6
+        try:
+            return self._fetch_all(sql, params)
+        except sqlite3.Error as e:
+            print(f"Erro ao buscar anotações: {e}")
+            raise
     
     def buscar_anotacao_por_id(self, id_anotacao):
         """ Busca uma anotação específica com base no ID. """
@@ -115,13 +126,69 @@ class DatabaseConnection:
             print(f"Erro ao buscar anotação por ID: {e}")
             raise
 
+    def buscar_anotacao_por_periodo_data(self, data_inicio, data_fim):
+        """ Busca anotações dentro de um período de datas. """
+        try:
+            # Ajusta o formato das datas para 'dd/MM/yyyy' que está armazenado no banco de dados
+            data_inicio = datetime.strptime(data_inicio, "%d/%m/%Y").strftime("%d/%m/%Y")
+            data_fim = datetime.strptime(data_fim, "%d/%m/%Y").strftime("%d/%m/%Y")
+            
+            sql = '''
+                SELECT * FROM app_anotacoes 
+                WHERE data BETWEEN ? AND ?
+            '''
+            params = (data_inicio, data_fim)
+            return self._fetch_all(sql, params)
+        except ValueError as e:
+            print(f"Erro ao converter datas: {e}")
+            raise
+
+
+    def buscar_anotacao_por_local(self, local):
+        """ Busca anotações com base no local. """
+        sql = 'SELECT * FROM app_anotacoes WHERE local LIKE ?'
+        params = (f'%{local}%',)
+        try:
+            return self._fetch_all(sql, params)
+        except sqlite3.Error as e:
+            print(f"Erro ao buscar anotações por local: {e}")
+            raise
+
+    def buscar_anotacao_por_medico(self, medico):
+        """ Busca anotações com base no médico. """
+        sql = 'SELECT * FROM app_anotacoes WHERE medico LIKE ?'
+        params = (f'%{medico}%',)
+        try:
+            return self._fetch_all(sql, params)
+        except sqlite3.Error as e:
+            print(f"Erro ao buscar anotações por médico: {e}")
+            raise
+
+    def buscar_anotacao_por_nota_fiscal(self, nota_fiscal):
+        """ Busca anotações com base na nota fiscal. """
+        sql = 'SELECT * FROM app_anotacoes WHERE nota_fiscal LIKE ?'
+        params = (f'%{nota_fiscal}%',)
+        try:
+            return self._fetch_all(sql, params)
+        except sqlite3.Error as e:
+            print(f"Erro ao buscar anotações por nota fiscal: {e}")
+            raise
+
 
     def listar_anotacoes(self):
         """ Lista todas as anotações no banco de dados. """
         sql = 'SELECT * FROM app_anotacoes'
-        return self._fetch_all(sql)
+        try:
+            return self._fetch_all(sql)
+        except sqlite3.Error as e:
+            print(f"Erro ao listar anotações: {e}")
+            raise
     
     def deletar_anotacao(self, id):
         """ Deleta uma anotação do banco de dados com base no ID. """
         sql = 'DELETE FROM app_anotacoes WHERE id = ?'
-        self._execute_sql(sql, (id,))
+        try:
+            self._execute_sql(sql, (id,))
+        except sqlite3.Error as e:
+            print(f"Erro ao deletar anotação: {e}")
+            raise

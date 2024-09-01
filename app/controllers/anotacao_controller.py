@@ -71,16 +71,43 @@ class AnotacaoController:
                 QtWidgets.QMessageBox.critical(self.main_window, "Erro", f"Erro ao deletar anotação: {str(e)}")
 
     def pesquisar_anotacao(self):
-        """ Pesquisa anotações com base no termo fornecido. """
-        termo_pesquisa = self.main_window.entry_pesquisa.text()
+        """ Pesquisa anotações com base no termo fornecido e no critério selecionado. """
+        criterio = self.main_window.combo_pesquisa.currentText()
+
         try:
-            anotações = self.db.buscar_anotacao(termo_pesquisa)
+            # Mapeamento do critério para a busca no banco de dados
+            if criterio == "ID":
+                termo_pesquisa = self.main_window.entry_pesquisa.text()
+                anotações = self.db.buscar_anotacao_por_id(termo_pesquisa)
+            elif criterio == "Período de Data":
+                # Obtém as datas dos campos QDateEdit no formato 'dd/MM/yyyy'
+                data_inicio = self.main_window.date_inicial.date().toString("dd/MM/yyyy")
+                data_fim = self.main_window.date_final.date().toString("dd/MM/yyyy")
+                anotações = self.db.buscar_anotacao_por_periodo_data(data_inicio, data_fim)
+            elif criterio == "Local":
+                termo_pesquisa = self.main_window.entry_pesquisa.text()
+                anotações = self.db.buscar_anotacao_por_local(termo_pesquisa)
+            elif criterio == "Médico":
+                termo_pesquisa = self.main_window.entry_pesquisa.text()
+                anotações = self.db.buscar_anotacao_por_medico(termo_pesquisa)
+            elif criterio == "Nota Fiscal":
+                termo_pesquisa = self.main_window.entry_pesquisa.text()
+                anotações = self.db.buscar_anotacao_por_nota_fiscal(termo_pesquisa)
+            elif criterio == "Todos os Campos":
+                termo_pesquisa = self.main_window.entry_pesquisa.text()
+                anotações = self.db.buscar_anotacao(termo_pesquisa)
+            else:
+                QtWidgets.QMessageBox.warning(self.main_window, "Critério Inválido", "Selecione um critério válido de pesquisa.")
+                return
+
+            # Verifica se alguma anotação foi encontrada e atualiza a tabela
             if anotações:
                 self._atualizar_tabela(anotações)
             else:
                 QtWidgets.QMessageBox.information(self.main_window, "Resultado", "Nenhuma anotação encontrada.")
         except Exception as e:
             QtWidgets.QMessageBox.critical(self.main_window, "Erro", f"Erro ao pesquisar anotações: {str(e)}")
+
 
     def _get_anotacao_from_inputs(self):
         """ Cria uma instância de Anotacao a partir dos campos de entrada. """
@@ -120,6 +147,16 @@ class AnotacaoController:
     def _atualizar_tabela(self, anotações):
         """ Atualiza a tabela na interface com os dados das anotações. """
         self.main_window.table.setRowCount(0)
+        
+        # Verifique se 'anotações' é um dicionário (um único registro) e converta para lista
+        if isinstance(anotações, dict):
+            anotações = [tuple(anotações.values())]  # Converta o dicionário para uma tupla e coloque em uma lista
+        
+        # Verifique se 'anotações' é uma lista de dicionários
+        elif isinstance(anotações, list) and len(anotações) > 0 and isinstance(anotações[0], dict):
+            anotações = [tuple(anotacao.values()) for anotacao in anotações]
+        
+        # Atualize a tabela com os dados
         for anotacao in anotações:
             row_position = self.main_window.table.rowCount()
             self.main_window.table.insertRow(row_position)

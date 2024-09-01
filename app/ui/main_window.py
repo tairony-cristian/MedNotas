@@ -21,8 +21,27 @@ class MainWindow(QtWidgets.QWidget):
     def create_widgets(self):
 
         # Campo de pesquisa
+        self.combo_pesquisa = QtWidgets.QComboBox(self)
+        self.combo_pesquisa.addItems(["ID", "Período de Data", "Local", "Médico", "Nota Fiscal", "Todos os Campos"])
+
         self.entry_pesquisa = QtWidgets.QLineEdit(self)
         self.entry_pesquisa.setPlaceholderText("Pesquisar...")
+
+        self.date_inicial = QtWidgets.QDateEdit(self)
+        self.date_inicial.setCalendarPopup(True)
+        self.date_inicial.setDisplayFormat("dd/MM/yyyy")  # Define o formato de exibição
+
+        self.date_final = QtWidgets.QDateEdit(self)
+        self.date_final.setCalendarPopup(True)
+        self.date_final.setDisplayFormat("dd/MM/yyyy")  # Define o formato de exibição
+
+        self.label_data_inicial = QtWidgets.QLabel("Data Inicial:", self)
+        self.label_data_final = QtWidgets.QLabel("Data Final:", self)
+
+        self.date_inicial.hide()
+        self.date_final.hide()
+        self.label_data_inicial.hide()
+        self.label_data_final.hide()
 
         # Botões
         self.btn_novo = QtWidgets.QPushButton("Novo", self)
@@ -44,6 +63,11 @@ class MainWindow(QtWidgets.QWidget):
         # Layout de Pesquisa
         pesquisa_layout = QtWidgets.QHBoxLayout()
         pesquisa_layout.addWidget(self.entry_pesquisa)
+        pesquisa_layout.addWidget(self.label_data_inicial)
+        pesquisa_layout.addWidget(self.date_inicial)
+        pesquisa_layout.addWidget(self.label_data_final)
+        pesquisa_layout.addWidget(self.date_final)
+        pesquisa_layout.addWidget(self.combo_pesquisa)
         pesquisa_layout.addWidget(self.btn_pesquisar)
         main_layout.addLayout(pesquisa_layout)
 
@@ -63,3 +87,23 @@ class MainWindow(QtWidgets.QWidget):
         self.btn_editar.clicked.connect(self.controller.editar_anotacao)
         self.btn_apagar.clicked.connect(self.controller.deletar_anotacao)
         self.btn_pesquisar.clicked.connect(self.controller.pesquisar_anotacao)
+        self.combo_pesquisa.currentIndexChanged.connect(self.update_search_fields)
+
+    def update_search_fields(self):
+        """ Atualiza os campos de entrada conforme a seleção no combobox. """
+        selected_option = self.combo_pesquisa.currentText()
+
+        # Reseta os campos de pesquisa
+        self.entry_pesquisa.clear()
+        self.date_inicial.hide()
+        self.date_final.hide()
+        self.label_data_inicial.hide()
+        self.label_data_final.hide()
+        self.entry_pesquisa.show()
+
+        if selected_option == "Período de Data":
+            self.entry_pesquisa.hide()
+            self.label_data_inicial.show()
+            self.date_inicial.show()
+            self.label_data_final.show()
+            self.date_final.show()
