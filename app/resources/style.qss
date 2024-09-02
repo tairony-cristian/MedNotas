@@ -1,30 +1,79 @@
+/* Configurações gerais do widget */
 QWidget {
-    background-color: #f0f0f0;
-    font-family: Arial;
+    background-color: #f7f7f7;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-QLineEdit {
+
+/* Estilo dos campos de entrada de texto */
+QLineEdit, QTextEdit {
     background-color: #ffffff;
-    border: 1px solid #ccc;
-    padding: 5px;
+    border: 1px solid #dcdcdc;
+    border-radius: 5px;
+    padding: 8px;
     font-size: 14px;
 }
+
+/* Estilo dos botões */
 QPushButton {
-    background-color: #007BFF;
-    color: white;
-    padding: 8px 10px;
+    background-color: #473C60; /* Cor roxa escura */
+    color: #ffffff; /* Texto branco */
+    padding: 10px 15px;
     border: none;
-    font-size: 14px;
-}
-QPushButton:hover {
-    background-color: #0056b3;
-}
-QTableWidget {
-    background-color: #ffffff;
-    border: 1px solid #ccc;
-    padding: 5px;
-    font-size: 14px;
-}
-QLabel {
+    border-radius: 5px;
     font-size: 14px;
     font-weight: bold;
+    text-align: center;
+}
+QPushButton:hover {
+    background-color: #5b4f76; /* Tom mais claro de roxo escuro */
+}
+QPushButton:pressed {
+    background-color: #3e314d; /* Tom ainda mais escuro de roxo escuro */
+}
+
+/* Estilo da tabela */
+QTableWidget {
+    background-color: #ffffff;
+    border: 1px solid #dcdcdc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+QTableWidget::item {
+    padding: 8px;
+}
+QHeaderView::section {
+    background-color: #BDA8C5; /* Cor roxa clara */
+    color: #473C60; /* Texto roxo escuro */
+    font-weight: bold;
+}
+
+/* Estilo dos labels */
+QLabel {
+    font-size: 16px;
+    font-weight: 600;
+    color: #473C60; /* Cor roxa escura */
+}
+
+/* Estilo dos ComboBoxes */
+QComboBox {
+    background-color: #ffffff;
+    border: 1px solid #dcdcdc;
+    border-radius: 5px;
+    padding: 5px;
+    font-size: 14px;
+    min-width: 150px;  /* Define uma largura mínima */
+    height: 25px;      /* Define uma altura fixa */
+}
+
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 25px;  /* Largura do botão de dropdown */
+    border-left: 1px solid #dcdcdc;
+}
+
+QComboBox::down-arrow {
+    image: url(:/resources/down_arrow.png); /* Caminho para o ícone da seta */
+    width: 12px;  /* Largura do ícone da seta */
+    height: 12px; /* Altura do ícone da seta */
 }

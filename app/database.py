@@ -129,10 +129,6 @@ class DatabaseConnection:
     def buscar_anotacao_por_periodo_data(self, data_inicio, data_fim):
         """ Busca anotações dentro de um período de datas. """
         try:
-            # Ajusta o formato das datas para 'dd/MM/yyyy' que está armazenado no banco de dados
-            data_inicio = datetime.strptime(data_inicio, "%d/%m/%Y").strftime("%d/%m/%Y")
-            data_fim = datetime.strptime(data_fim, "%d/%m/%Y").strftime("%d/%m/%Y")
-            
             sql = '''
                 SELECT * FROM app_anotacoes 
                 WHERE data BETWEEN ? AND ?
@@ -142,7 +138,6 @@ class DatabaseConnection:
         except ValueError as e:
             print(f"Erro ao converter datas: {e}")
             raise
-
 
     def buscar_anotacao_por_local(self, local):
         """ Busca anotações com base no local. """

@@ -19,9 +19,7 @@ class MainWindow(QtWidgets.QWidget):
         self.controller._atualizar_lista()
 
     def create_widgets(self):
-        # Configure o locale para Português
-        locale = QtCore.QLocale(QtCore.QLocale.Portuguese, QtCore.QLocale.Brazil)
-
+     
         # Campo de pesquisa
         self.combo_pesquisa = QtWidgets.QComboBox(self)
         self.combo_pesquisa.addItems(["ID", "Período de Data", "Local", "Médico", "Nota Fiscal", "Todos os Campos"])
@@ -31,13 +29,11 @@ class MainWindow(QtWidgets.QWidget):
 
         self.date_inicial = QtWidgets.QDateEdit(self)
         self.date_inicial.setCalendarPopup(True)
-        self.date_inicial.setDisplayFormat("dd/MM/yyyy")  # Define o formato de exibição
-        self.date_inicial.setLocale(locale)  # Ajusta o locale
-
+        self.date_inicial.setDisplayFormat("yyyy/MM/dd")  # Define o formato de exibição
+        
         self.date_final = QtWidgets.QDateEdit(self)
         self.date_final.setCalendarPopup(True)
-        self.date_final.setDisplayFormat("dd/MM/yyyy")  # Define o formato de exibição
-        self.date_final.setLocale(locale)  # Ajusta o locale
+        self.date_final.setDisplayFormat("yyyy/MM/dd")  # Define o formato de exibição
 
         self.label_data_inicial = QtWidgets.QLabel("Data Inicial:", self)
         self.label_data_final = QtWidgets.QLabel("Data Final:", self)

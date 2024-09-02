@@ -83,9 +83,9 @@ class AnotacaoController:
                 termo_pesquisa = self.main_window.entry_pesquisa.text()
                 anotações = self.db.buscar_anotacao_por_id(termo_pesquisa)
             elif criterio == "Período de Data":
-                # Obtém as datas dos campos QDateEdit no formato 'dd/MM/yyyy'
-                data_inicio = self.main_window.date_inicial.date().toString("dd/MM/yyyy")
-                data_fim = self.main_window.date_final.date().toString("dd/MM/yyyy")
+                # Obtém as datas dos campos QDateEdit no formato 'yyyy/MM/dd'
+                data_inicio = self.main_window.date_inicial.date().toString("yyyy/MM/dd")
+                data_fim = self.main_window.date_final.date().toString("yyyy/MM/dd")
                 anotações = self.db.buscar_anotacao_por_periodo_data(data_inicio, data_fim)
             elif criterio == "Local":
                 termo_pesquisa = self.main_window.entry_pesquisa.text()
@@ -116,7 +116,7 @@ class AnotacaoController:
         """ Cria uma instância de Anotacao a partir dos campos de entrada. """
         return Anotacao(
             id=None,  # O ID é gerado automaticamente pelo banco de dados
-            data=Utils.formatar_data(self.main_window.entry_data.text()),
+            data=self.main_window.entry_data.text(),
             procedimento=self.main_window.entry_procedimento.text(),
             quant_procedimento=int(self.main_window.entry_quant_procedimento.text()),
             quant_ampola=int(self.main_window.entry_quant_ampola.text()),

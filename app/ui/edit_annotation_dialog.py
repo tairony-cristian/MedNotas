@@ -24,7 +24,7 @@ class EditAnnotationDialog(QtWidgets.QDialog):
         self.entry_custo = QtWidgets.QLineEdit()
         self.entry_local = QtWidgets.QLineEdit()
         self.entry_medico = QtWidgets.QLineEdit()
-        self.entry_nota_fiscal = QtWidgets.QTextEdit()
+        self.entry_nota_fiscal = QtWidgets.QLineEdit()
         self.entry_observacao = QtWidgets.QTextEdit()
 
         # Adiciona os campos ao layout
@@ -69,7 +69,7 @@ class EditAnnotationDialog(QtWidgets.QDialog):
 
     def _preencher_campos(self, anotacao):
         """ Preenche os campos da interface com os dados da anotação selecionada. """
-        self.entry_data.setText(Utils.formatar_data(anotacao['data']))
+        self.entry_data.setText(anotacao['data'])
         self.entry_procedimento.setText(anotacao['procedimento'])
         self.entry_quant_procedimento.setValue(anotacao['quant_procedimento'])
         self.entry_quant_ampola.setValue(anotacao['quant_ampola'])
@@ -90,13 +90,13 @@ class EditAnnotationDialog(QtWidgets.QDialog):
     def get_anotacao(self):
         """ Retorna os dados da anotação do diálogo. """
         return {
-            'data': Utils.formatar_data(self.entry_data.text()),
+            'data': self.entry_data.text(),
             'procedimento': self.entry_procedimento.text(),
             'quant_procedimento': self.entry_quant_procedimento.value(),
             'quant_ampola': self.entry_quant_ampola.value(),
             'custo': Utils.formatar_custo(self.entry_custo.text()),
             'local': self.entry_local.text(),
             'medico': self.entry_medico.text(),
-            'nota_fiscal': self.entry_nota_fiscal.toPlainText(),
+            'nota_fiscal': self.entry_nota_fiscal.text(),
             'observacao': self.entry_observacao.toPlainText()
         }
