@@ -1,7 +1,7 @@
+from ui.utils import Utils
 from PyQt5 import QtWidgets
 from models.anotacao import Anotacao
 from database import DatabaseConnection
-from ui.utils import Utils
 from ui.edit_annotation_dialog import EditAnnotationDialog
 
 class AnotacaoController:
@@ -91,7 +91,7 @@ class AnotacaoController:
                 self._atualizar_lista()
                 QtWidgets.QMessageBox.information(self.main_window, "Sucesso", f"Registro com ID {id_anotacao} excluído com sucesso.")
             except Exception as e:
-                QtWidgets.QMessageBox.critical(self, "Erro", f"Erro ao excluir Registro: {str(e)}")
+                QtWidgets.QMessageBox.critical(self.main_window, "Erro", f"Erro ao excluir Registro: {str(e)}")
 
     def pesquisar_anotacao(self):
         """ Pesquisa anotações com base no termo fornecido e no critério selecionado. """

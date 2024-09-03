@@ -73,10 +73,18 @@ QComboBox::drop-down {
 }
 
 QComboBox::down-arrow {
-    image: url(:/resources/down_arrow.png); /* Caminho para o ícone da seta */
-    width: 12px;  /* Largura do ícone da seta */
-    height: 12px; /* Altura do ícone da seta */
+    image: url(C:/projeto_python/MedNotas/app/resources/down_arrow.png);
+    width: 17px;
+    height: 17px;
 }
+
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 25px;  /* Largura do botão de dropdown */
+    border-left: 1px solid #dcdcdc;
+}
+
 
 /* Estilo do calendário no QDateEdit */
 QCalendarWidget {

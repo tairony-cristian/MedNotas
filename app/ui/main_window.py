@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtWidgets, QtCore, QtGui
 from controllers.anotacao_controller import AnotacaoController
 
 class MainWindow(QtWidgets.QWidget):
@@ -13,6 +13,9 @@ class MainWindow(QtWidgets.QWidget):
     def init_ui(self):
         self.setWindowTitle("MedNotas")
         self.setGeometry(100, 100, 1200, 600)
+
+        self.setWindowIcon(QtGui.QIcon('C:/projeto_python/MedNotas/app/resources/mednotas.ico')) # Definir o ícone da janela
+
         self.create_widgets()
         self.create_layout()
         self.connect_signals()
