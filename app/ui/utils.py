@@ -17,12 +17,14 @@ class Utils:
             raise ValueError("Data inválida. Use o formato yyyy-mm-dd ou yyyy/mm/dd.")
         
     def formatar_data_para_banco(data):
-        """ Formata a data de dd/mm/yyyy para yyyy/MM/dd para salvar no banco de dados. """
+        """ Formata a data de dd/mm/yyyy para yyyy-mm-dd para salvar no banco de dados. """
         if '/' in data:
             partes = data.split('/')
-            return f'{partes[2]}/{partes[1]}/{partes[0]}'  # yyyy/MM/dd
+            # Converte a data para o formato yyyy-mm-dd
+            return f'{partes[2]}-{partes[1]}-{partes[0]}'
         else:
             raise ValueError("Data inválida. Use o formato dd/mm/yyyy.")
+
 
     @staticmethod
     def formatar_custo_para_exibicao(custo):

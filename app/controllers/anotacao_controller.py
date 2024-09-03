@@ -69,14 +69,29 @@ class AnotacaoController:
     def deletar_anotacao(self):
         """ Deleta uma anotação selecionada. """
         selected_items = self.main_window.table.selectedItems()
-        if selected_items:
-            id_anotacao = selected_items[0].text()
+        if not selected_items:
+            QtWidgets.QMessageBox.warning(self.main_window, "Erro", "Por favor, selecione um registro para deletar.")
+            return
+
+        selected_row = selected_items[0].row()
+        id_anotacao = self.main_window.table.item(selected_row, 0).text()
+
+        # Solicita confirmação
+        reply = QtWidgets.QMessageBox.question(
+            self.main_window, 
+            'Confirmar Exclusão', 
+            f"Tem certeza de que deseja excluir o registro com ID: {id_anotacao}?", 
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No, 
+            QtWidgets.QMessageBox.No
+        )
+        
+        if reply == QtWidgets.QMessageBox.Yes:
             try:
-                self.db.deletar_anotacao(id_anotacao)
+                self.db.deletar_anotacao(int(id_anotacao))
                 self._atualizar_lista()
-                QtWidgets.QMessageBox.information(self.main_window, "Sucesso", "Anotação deletada com sucesso!")
+                QtWidgets.QMessageBox.information(self.main_window, "Sucesso", f"Registro com ID {id_anotacao} excluído com sucesso.")
             except Exception as e:
-                QtWidgets.QMessageBox.critical(self.main_window, "Erro", f"Erro ao deletar anotação: {str(e)}")
+                QtWidgets.QMessageBox.critical(self, "Erro", f"Erro ao excluir Registro: {str(e)}")
 
     def pesquisar_anotacao(self):
         """ Pesquisa anotações com base no termo fornecido e no critério selecionado. """
@@ -88,9 +103,11 @@ class AnotacaoController:
                 termo_pesquisa = self.main_window.entry_pesquisa.text()
                 anotações = self.db.buscar_anotacao_por_id(termo_pesquisa)
             elif criterio == "Período de Data":
-                # Obtém as datas dos campos QDateEdit no formato 'yyyy/MM/dd'
-                data_inicio = self.main_window.date_inicial.date().toString("yyyy/MM/dd")
-                data_fim = self.main_window.date_final.date().toString("yyyy/MM/dd")
+                # Obtém as datas dos campos QDateEdit no formato 'yyyy-MM-dd'
+                data_inicio = self.main_window.date_inicial.date().toString("yyyy-MM-dd")
+                data_fim = self.main_window.date_final.date().toString("yyyy-MM-dd")
+
+                # Passa as datas formatadas para a função de busca
                 anotações = self.db.buscar_anotacao_por_periodo_data(data_inicio, data_fim)
             elif criterio == "Local":
                 termo_pesquisa = self.main_window.entry_pesquisa.text()
@@ -169,4 +186,9 @@ class AnotacaoController:
             row_position = self.main_window.table.rowCount()
             self.main_window.table.insertRow(row_position)
             for i, data in enumerate(anotacao):
+                if i == 5:  # coluna de custo é a 6ª (index 5)
+                    data = Utils.formatar_custo_para_exibicao(data)
+                elif i == 1:  #  coluna de data é a 2ª (index 1)
+                    data = Utils.formatar_data_para_exibicao(data)
+                
                 self.main_window.table.setItem(row_position, i, QtWidgets.QTableWidgetItem(str(data)))

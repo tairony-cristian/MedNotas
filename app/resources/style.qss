@@ -5,7 +5,7 @@ QWidget {
 }
 
 /* Estilo dos campos de entrada de texto */
-QLineEdit, QTextEdit {
+QLineEdit, QTextEdit, QDateEdit {
     background-color: #ffffff;
     border: 1px solid #dcdcdc;
     border-radius: 5px;
@@ -76,4 +76,28 @@ QComboBox::down-arrow {
     image: url(:/resources/down_arrow.png); /* Caminho para o ícone da seta */
     width: 12px;  /* Largura do ícone da seta */
     height: 12px; /* Altura do ícone da seta */
+}
+
+/* Estilo do calendário no QDateEdit */
+QCalendarWidget {
+    background-color: #ffffff;
+    border: 1px solid #dcdcdc;
+    border-radius: 5px;
+}
+
+QCalendarWidget QAbstractItemView {
+    selection-background-color: #473C60; /* Cor roxa escura para seleção */
+    selection-color: #ffffff; /* Texto branco na seleção */
+    color: #473C60; /* Texto roxo escuro */
+}
+
+QCalendarWidget QToolButton {
+    background-color: #BDA8C5; /* Cor roxa clara para os botões do calendário */
+    color: #473C60; /* Texto roxo escuro */
+    border: none;
+    border-radius: 5px;
+}
+
+QCalendarWidget QToolButton:hover {
+    background-color: #5b4f76; /* Tom mais claro de roxo escuro ao passar o mouse */
 }

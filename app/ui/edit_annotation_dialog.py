@@ -17,6 +17,7 @@ class EditAnnotationDialog(QtWidgets.QDialog):
     def init_ui(self):
         """ Inicializa a interface do diálogo. """
         layout = QtWidgets.QVBoxLayout()
+        self.setFixedSize(450, 680)
 
         # Campo de data com QDateEdit
         self.entry_data = QtWidgets.QDateEdit(self)
@@ -76,15 +77,11 @@ class EditAnnotationDialog(QtWidgets.QDialog):
     def _preencher_campos(self, anotacao):
         """ Preenche os campos da interface com os dados da anotação selecionada. """
         data_str = anotacao['data']
-        print(f"Data recebida do banco de dados: {data_str}")  # Para debug
-
         # Converte a string da data para o formato QDate, especificando o formato correto
         data = QDate.fromString(data_str, "dd/MM/yyyy")
-        
         if data.isValid():
             self.entry_data.setDate(data)  # Define a data no QDateEdit
         else:
-            print(f"Falha ao converter a data: {data_str}")  # Debug se a conversão falhar
             self.entry_data.setDate(QDate.currentDate())  # Como fallback, definir a data atual ou outra data
 
         self.entry_procedimento.setText(anotacao['procedimento'])

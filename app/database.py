@@ -104,6 +104,7 @@ class DatabaseConnection:
             SELECT * FROM app_anotacoes 
             WHERE data LIKE ? OR procedimento LIKE ? OR local LIKE ? 
             OR medico LIKE ? OR nota_fiscal LIKE ? OR observacao LIKE ?
+            ORDER BY data ASC
         '''
         params = (f'%{termo_pesquisa}%',) * 6
         try:
@@ -132,6 +133,7 @@ class DatabaseConnection:
             sql = '''
                 SELECT * FROM app_anotacoes 
                 WHERE data BETWEEN ? AND ?
+                ORDER BY data ASC
             '''
             params = (data_inicio, data_fim)
             return self._fetch_all(sql, params)
@@ -141,7 +143,11 @@ class DatabaseConnection:
 
     def buscar_anotacao_por_local(self, local):
         """ Busca anotações com base no local. """
-        sql = 'SELECT * FROM app_anotacoes WHERE local LIKE ?'
+        sql = '''
+            SELECT * FROM app_anotacoes 
+            WHERE local LIKE ?
+            ORDER BY data ASC
+        '''
         params = (f'%{local}%',)
         try:
             return self._fetch_all(sql, params)
@@ -151,7 +157,7 @@ class DatabaseConnection:
 
     def buscar_anotacao_por_medico(self, medico):
         """ Busca anotações com base no médico. """
-        sql = 'SELECT * FROM app_anotacoes WHERE medico LIKE ?'
+        sql = 'SELECT * FROM app_anotacoes WHERE medico LIKE ? ORDER BY data ASC'
         params = (f'%{medico}%',)
         try:
             return self._fetch_all(sql, params)
@@ -161,7 +167,7 @@ class DatabaseConnection:
 
     def buscar_anotacao_por_nota_fiscal(self, nota_fiscal):
         """ Busca anotações com base na nota fiscal. """
-        sql = 'SELECT * FROM app_anotacoes WHERE nota_fiscal LIKE ?'
+        sql = 'SELECT * FROM app_anotacoes WHERE nota_fiscal LIKE ? ORDER BY nota_fiscal ASC'
         params = (f'%{nota_fiscal}%',)
         try:
             return self._fetch_all(sql, params)
