@@ -1,5 +1,4 @@
 import sqlite3
-from datetime import datetime
 
 class DatabaseConnection:
     def __init__(self, db_name="notas.db"):
@@ -87,6 +86,7 @@ class DatabaseConnection:
             quant_ampola = ?, custo = ?, local = ?, medico = ?, nota_fiscal = ?, observacao = ?
             WHERE id = ?
         '''
+
         params = (
             anotacao['data'], anotacao['procedimento'], anotacao['quant_procedimento'], 
             anotacao['quant_ampola'], anotacao['custo'], anotacao['local'], 

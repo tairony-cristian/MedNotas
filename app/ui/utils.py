@@ -2,29 +2,48 @@ from PyQt5 import QtWidgets
 
 class Utils:
     @staticmethod
-    def formatar_data(data):
-        """ Formata a data no formato dd/mm/yyyy. """
-        if '/' not in data:
-            if len(data) == 8:
-                return f'{data[:2]}/{data[2:4]}/{data[4:]}'
-            else:
-                raise ValueError("Data inválida. Use o formato ddmmaaaa ou dd/mm/yyyy.")
-        return data
+    def formatar_data_para_exibicao(data):
+        """Converte a data de yyyy/mm/dd ou yyyy-mm-dd para dd/mm/yyyy."""
+        if '-' in data:
+            parts = data.split('-')
+        elif '/' in data:
+            parts = data.split('/')
+        else:
+            raise ValueError("Data inválida. Use o formato yyyy-mm-dd ou yyyy/mm/dd.")
+
+        if len(parts) == 3:
+            return f"{parts[2]}/{parts[1]}/{parts[0]}"
+        else:
+            raise ValueError("Data inválida. Use o formato yyyy-mm-dd ou yyyy/mm/dd.")
+        
+    def formatar_data_para_banco(data):
+        """ Formata a data de dd/mm/yyyy para yyyy/MM/dd para salvar no banco de dados. """
+        if '/' in data:
+            partes = data.split('/')
+            return f'{partes[2]}/{partes[1]}/{partes[0]}'  # yyyy/MM/dd
+        else:
+            raise ValueError("Data inválida. Use o formato dd/mm/yyyy.")
 
     @staticmethod
-    def formatar_custo(custo_str):
-        """ Formata o custo no formato R$ 1.234,56. """
+    def formatar_custo_para_exibicao(custo):
         try:
-            if custo_str.startswith("R$"):
-                custo_str = custo_str[2:].strip()  # Remove 'R$' e espaços extras
-            custo_str = custo_str.replace('.', '').replace(',', '.')  # Substitui '.' por ',' e vice-versa
-
-            valor = float(custo_str)
-            return f'R$ {valor:,.2f}'.replace('.', ',')
-
+            valor = float(custo)  # Certifica-se de que o valor é float
+            # Formata para exibição no padrão brasileiro
+            return f"R$ {valor:,.2f}".replace('.', 'X').replace(',', '.').replace('X', ',')
         except ValueError:
-            raise ValueError("Custo inválido. Certifique-se de usar um número válido no formato R$ x.xxx,xx.")
+            raise ValueError("Custo inválido. Certifique-se de usar um número válido no formato 1234.56.")
 
+    @staticmethod
+    def formatar_custo_para_banco(custo_str):
+        try:
+            # Remove 'R$', espaços e substitui vírgulas por pontos
+            custo = custo_str.replace('R$', '').replace('.', '').replace(',', '.').strip()
+            valor = float(custo)  # Converte para float
+            return valor
+        except ValueError:
+            raise ValueError("Custo inválido. Certifique-se de usar um número válido no formato 1234.56.")
+
+        
     @staticmethod
     def validar_campos(dialog):
         """ Valida se todos os campos obrigatórios estão preenchidos no diálogo fornecido. """

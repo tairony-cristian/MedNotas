@@ -29,11 +29,12 @@ class AnotacaoController:
             id_anotacao = selected_items[0].text()
             anotacao = self.db.buscar_anotacao_por_id(id_anotacao)
             if anotacao:
+                anotacao['custo'] = Utils.formatar_custo_para_exibicao(anotacao['custo'])  # Converte para exibição
+                anotacao['data'] = Utils.formatar_data_para_exibicao(anotacao['data'])  # Converte para dd/mm/yyyy ao exibir
                 dialog = EditAnnotationDialog(self.main_window, anotacao)
                 if dialog.exec_() == QtWidgets.QDialog.Accepted:
                     try:
-                        updated_anotacao = dialog.get_anotacao()  # Certifique-se de que get_anotacao retorna um dicionário
-                        # Atualiza a anotação no banco de dados usando o dicionário
+                        updated_anotacao = dialog.get_anotacao()
                         self.db.atualizar_anotacao(id_anotacao, updated_anotacao)
                         self._atualizar_lista()
                         QtWidgets.QMessageBox.information(self.main_window, "Sucesso", "Anotação atualizada com sucesso!")
@@ -42,24 +43,28 @@ class AnotacaoController:
             else:
                 QtWidgets.QMessageBox.warning(self.main_window, "Erro", "Anotação não encontrada.")
         else:
-            # Exibe uma mensagem se nenhum item estiver selecionado
             QtWidgets.QMessageBox.warning(self.main_window, "Nenhum item selecionado", "Por favor, selecione uma anotação para editar.")
+
             
     def gravar_anotacao(self):
-        """ Salva as alterações em uma anotação existente ou adiciona uma nova. """
         if Utils.validar_campos(self.main_window):
             try:
+                anotacao = self._get_anotacao_from_inputs()
+                anotacao['custo'] = Utils.formatar_custo_para_banco(anotacao['custo'])  # Converte para o banco
+
                 if self.main_window.editing:
-                    anotacao = self._get_anotacao_from_inputs()
                     self.db.atualizar_anotacao(self.main_window.editing_id, anotacao)
                     QtWidgets.QMessageBox.information(self.main_window, "Sucesso", "Anotação atualizada com sucesso!")
                 else:
-                    self.adicionar_anotacao()
+                    self.db.adicionar_anotacao(anotacao)
+                    QtWidgets.QMessageBox.information(self.main_window, "Sucesso", "Anotação adicionada com sucesso!")
+                
                 self.main_window.editing = False
                 self.main_window.editing_id = None
                 self._atualizar_lista()
             except Exception as e:
                 QtWidgets.QMessageBox.critical(self.main_window, "Erro", f"Erro ao salvar anotação: {str(e)}")
+
 
     def deletar_anotacao(self):
         """ Deleta uma anotação selecionada. """
@@ -120,7 +125,7 @@ class AnotacaoController:
             procedimento=self.main_window.entry_procedimento.text(),
             quant_procedimento=int(self.main_window.entry_quant_procedimento.text()),
             quant_ampola=int(self.main_window.entry_quant_ampola.text()),
-            custo=Utils.formatar_custo(self.main_window.entry_custo.text()),
+            custo=self.main_window.entry_custo.text(),
             local=self.main_window.entry_local.text(),
             medico=self.main_window.entry_medico.text(),
             nota_fiscal=self.main_window.entry_nota_fiscal.text(),
@@ -129,15 +134,15 @@ class AnotacaoController:
 
     def _preencher_campos(self, anotacao):
         """ Preenche os campos da interface com os dados da anotação selecionada. """
-        self.main_window.entry_data.setText(anotacao[1])
-        self.main_window.entry_procedimento.setText(anotacao[2])
-        self.main_window.entry_quant_procedimento.setText(str(anotacao[3]))
-        self.main_window.entry_quant_ampola.setText(str(anotacao[4]))
-        self.main_window.entry_custo.setText(Utils.formatar_custo(str(anotacao[5])))
-        self.main_window.entry_local.setText(anotacao[6])
-        self.main_window.entry_medico.setText(anotacao[7])
-        self.main_window.entry_nota_fiscal.setText(anotacao[8])
-        self.main_window.entry_observacao.setText(anotacao[9])
+        self.entry_data.setText(anotacao['data'])
+        self.entry_procedimento.setText(anotacao['procedimento'])
+        self.entry_quant_procedimento.setValue(anotacao['quant_procedimento'])
+        self.entry_quant_ampola.setValue(anotacao['quant_ampola'])
+        self.entry_custo.setText(Utils.formatar_custo_para_exibicao(anotacao['custo']))
+        self.entry_local.setText(anotacao['local'])
+        self.entry_medico.setText(anotacao['medico'])
+        self.entry_nota_fiscal.setText(anotacao['nota_fiscal'])
+        self.entry_observacao.setText(anotacao['observacao'])
 
     def _atualizar_lista(self):
         """ Atualiza a lista de anotações exibida na interface. """

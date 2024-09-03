@@ -1,4 +1,6 @@
 from PyQt5 import QtWidgets
+from PyQt5.QtCore import QLocale
+from PyQt5.QtCore import QDate
 from ui.utils import Utils
 
 class EditAnnotationDialog(QtWidgets.QDialog):
@@ -16,8 +18,13 @@ class EditAnnotationDialog(QtWidgets.QDialog):
         """ Inicializa a interface do diálogo. """
         layout = QtWidgets.QVBoxLayout()
 
-        # Campos de entrada
-        self.entry_data = QtWidgets.QLineEdit()
+        # Campo de data com QDateEdit
+        self.entry_data = QtWidgets.QDateEdit(self)
+        self.entry_data.setCalendarPopup(True)
+        self.entry_data.setDisplayFormat("dd/MM/yyyy")  # Define o formato de exibição
+        self.entry_data.setLocale(QLocale(QLocale.Portuguese, QLocale.Brazil))  # Define o locale
+
+        # Outros campos de entrada
         self.entry_procedimento = QtWidgets.QLineEdit()
         self.entry_quant_procedimento = QtWidgets.QSpinBox()
         self.entry_quant_ampola = QtWidgets.QSpinBox()
@@ -47,7 +54,6 @@ class EditAnnotationDialog(QtWidgets.QDialog):
         layout.addWidget(QtWidgets.QLabel("Observação:"))
         layout.addWidget(self.entry_observacao)
         
-
         # Botões
         button_layout = QtWidgets.QHBoxLayout()
         btn_save = QtWidgets.QPushButton("Salvar")
@@ -69,15 +75,27 @@ class EditAnnotationDialog(QtWidgets.QDialog):
 
     def _preencher_campos(self, anotacao):
         """ Preenche os campos da interface com os dados da anotação selecionada. """
-        self.entry_data.setText(anotacao['data'])
+        data_str = anotacao['data']
+        print(f"Data recebida do banco de dados: {data_str}")  # Para debug
+
+        # Converte a string da data para o formato QDate, especificando o formato correto
+        data = QDate.fromString(data_str, "dd/MM/yyyy")
+        
+        if data.isValid():
+            self.entry_data.setDate(data)  # Define a data no QDateEdit
+        else:
+            print(f"Falha ao converter a data: {data_str}")  # Debug se a conversão falhar
+            self.entry_data.setDate(QDate.currentDate())  # Como fallback, definir a data atual ou outra data
+
         self.entry_procedimento.setText(anotacao['procedimento'])
         self.entry_quant_procedimento.setValue(anotacao['quant_procedimento'])
         self.entry_quant_ampola.setValue(anotacao['quant_ampola'])
-        self.entry_custo.setText(Utils.formatar_custo(anotacao['custo']))
+        self.entry_custo.setText(anotacao['custo'])
         self.entry_local.setText(anotacao['local'])
         self.entry_medico.setText(anotacao['medico'])
         self.entry_nota_fiscal.setText(anotacao['nota_fiscal'])
         self.entry_observacao.setText(anotacao['observacao'])
+
 
     def save_changes(self):
         """ Salva as alterações feitas nos campos de entrada. """
@@ -86,17 +104,23 @@ class EditAnnotationDialog(QtWidgets.QDialog):
         else:
             QtWidgets.QMessageBox.warning(self, "Validação", "Por favor, preencha todos os campos obrigatórios.")
 
-
     def get_anotacao(self):
-        """ Retorna os dados da anotação do diálogo. """
+        """ Obtém os dados da anotação do diálogo, com a data formatada. """
+        data = self.entry_data.date().toString("dd/MM/yyyy")
+        custo = self.entry_custo.text()
+
+        # Valida e formata a data para o formato do banco de dados (yyyy/MM/dd)
+        data_formatada = Utils.formatar_data_para_banco(data)
+        custo_formatado = Utils.formatar_custo_para_banco(custo)
+
         return {
-            'data': self.entry_data.text(),
+            'data': data_formatada,  # Converte para yyyy/MM/dd antes de salvar
             'procedimento': self.entry_procedimento.text(),
             'quant_procedimento': self.entry_quant_procedimento.value(),
             'quant_ampola': self.entry_quant_ampola.value(),
-            'custo': Utils.formatar_custo(self.entry_custo.text()),
+            'custo': custo_formatado,
             'local': self.entry_local.text(),
             'medico': self.entry_medico.text(),
             'nota_fiscal': self.entry_nota_fiscal.text(),
-            'observacao': self.entry_observacao.toPlainText()
+            'observacao': self.entry_observacao.toPlainText(),
         }
