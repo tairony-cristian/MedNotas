@@ -1,0 +1,1 @@
+pyinstaller --onefile --icon=app/resources/mednotas.ico --name Mednotas --add-data "app/resources;resources" --paths=app --windowed app/main.py

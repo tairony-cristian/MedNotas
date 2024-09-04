@@ -1,7 +1,7 @@
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import QLocale
-from PyQt5.QtCore import QDate
 from ui.utils import Utils
+from PyQt5.QtCore import QDate
+from PyQt5.QtCore import QLocale
 
 class EditAnnotationDialog(QtWidgets.QDialog):
     def __init__(self, parent, anotacao=None):
@@ -73,17 +73,15 @@ class EditAnnotationDialog(QtWidgets.QDialog):
 
         if self.anotacao:
             self._preencher_campos(self.anotacao)
+        else:
+            # Se for uma nova anotação, preenche com a data atual
+            self.entry_data.setDate(QDate.currentDate())
 
     def _preencher_campos(self, anotacao):
         """ Preenche os campos da interface com os dados da anotação selecionada. """
         data_str = anotacao['data']
-        # Converte a string da data para o formato QDate, especificando o formato correto
-        data = QDate.fromString(data_str, "dd/MM/yyyy")
-        if data.isValid():
-            self.entry_data.setDate(data)  # Define a data no QDateEdit
-        else:
-            self.entry_data.setDate(QDate.currentDate())  # Como fallback, definir a data atual ou outra data
-
+        data = Utils.converter_string_para_qdate(data_str, "dd/MM/yyyy")
+        self.entry_data.setDate(data)  # Define a data no QDateEdit
         self.entry_procedimento.setText(anotacao['procedimento'])
         self.entry_quant_procedimento.setValue(anotacao['quant_procedimento'])
         self.entry_quant_ampola.setValue(anotacao['quant_ampola'])
@@ -106,12 +104,10 @@ class EditAnnotationDialog(QtWidgets.QDialog):
         data = self.entry_data.date().toString("dd/MM/yyyy")
         custo = self.entry_custo.text()
 
-        # Valida e formata a data para o formato do banco de dados (yyyy/MM/dd)
         data_formatada = Utils.formatar_data_para_banco(data)
         custo_formatado = Utils.formatar_custo_para_banco(custo)
-
         return {
-            'data': data_formatada,  # Converte para yyyy/MM/dd antes de salvar
+            'data': data_formatada,
             'procedimento': self.entry_procedimento.text(),
             'quant_procedimento': self.entry_quant_procedimento.value(),
             'quant_ampola': self.entry_quant_ampola.value(),

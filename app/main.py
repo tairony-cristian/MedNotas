@@ -1,7 +1,19 @@
 import sys
+import os
 import locale
 from PyQt5 import QtWidgets
 from ui.main_window import MainWindow
+
+def resource_path(relative_path):
+    """ Obtém o caminho absoluto para os recursos no ambiente de execução. """
+    try:
+        # Para o ambiente de desenvolvimento
+        base_path = os.path.dirname(__file__)
+        return os.path.join(base_path, relative_path)
+    except NameError:
+        # Para o ambiente do PyInstaller
+        base_path = getattr(sys, '_MEIPASS', os.path.dirname(__file__))
+        return os.path.join(base_path, relative_path)
 
 def main():
     # Definir a localidade para pt_BR (Português do Brasil)
@@ -11,7 +23,7 @@ def main():
     app = QtWidgets.QApplication(sys.argv)
     
     # Carregar o estilo QSS
-    style_path = "app/resources/style.qss"
+    style_path = resource_path("resources/style.qss")
     try:
         with open(style_path, "r") as f:
             app.setStyleSheet(f.read())

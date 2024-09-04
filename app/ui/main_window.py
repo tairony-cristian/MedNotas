@@ -1,3 +1,4 @@
+from PyQt5.QtCore import QDate
 from PyQt5 import QtWidgets, QtCore, QtGui
 from controllers.anotacao_controller import AnotacaoController
 
@@ -37,11 +38,13 @@ class MainWindow(QtWidgets.QWidget):
         self.date_inicial.setCalendarPopup(True)
         self.date_inicial.setDisplayFormat("dd/MM/yyyy")  # Define o formato de exibição
         self.date_inicial.setLocale(locale)  # Ajusta o locale
+        self.date_inicial.setDate(QDate.currentDate())  # Define a data atual como padrão
         
         self.date_final = QtWidgets.QDateEdit(self)
         self.date_final.setCalendarPopup(True)
         self.date_final.setDisplayFormat("dd/MM/yyyy")  # Define o formato de exibição
         self.date_final.setLocale(locale)  # Ajusta o locale
+        self.date_final.setDate(QDate.currentDate())  # Define a data atual como padrão
 
 
         self.label_data_inicial = QtWidgets.QLabel("Data Inicial:", self)
