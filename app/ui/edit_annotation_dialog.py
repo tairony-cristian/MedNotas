@@ -1,7 +1,6 @@
 from PyQt5 import QtWidgets
 from ui.utils import Utils
-from PyQt5.QtCore import QDate
-from PyQt5.QtCore import QLocale
+from PyQt5.QtCore import QDate, QLocale
 
 class EditAnnotationDialog(QtWidgets.QDialog):
     def __init__(self, parent, anotacao=None):
@@ -27,28 +26,39 @@ class EditAnnotationDialog(QtWidgets.QDialog):
 
         # Outros campos de entrada
         self.entry_procedimento = QtWidgets.QLineEdit()
+        
         self.entry_quant_procedimento = QtWidgets.QSpinBox()
+        self.entry_quant_procedimento.setMaximum(10000)
         self.entry_quant_ampola = QtWidgets.QSpinBox()
-        self.entry_custo = QtWidgets.QLineEdit()
+        self.entry_quant_ampola.setMaximum(10000)
+        
+        self.entry_custo = QtWidgets.QDoubleSpinBox()
+        self.entry_custo.setPrefix("R$ ")  # Prefixo para exibir o símbolo de R$
+        self.entry_custo.setDecimals(2)  # Número de casas decimais
+        self.entry_custo.setMinimum(0.00)  # Define o valor mínimo 
+        self.entry_custo.setMaximum(99999999.99) # Define o valor máximo
+        self.entry_custo.setSingleStep(1.00)  # Incremento para ajuste com as setas
+        self.entry_custo.setLocale(QLocale(QLocale.Portuguese, QLocale.Brazil))  # Para garantir que o separador decimal seja a vírgula
+
         self.entry_local = QtWidgets.QLineEdit()
         self.entry_medico = QtWidgets.QLineEdit()
         self.entry_nota_fiscal = QtWidgets.QLineEdit()
         self.entry_observacao = QtWidgets.QTextEdit()
 
         # Adiciona os campos ao layout
-        layout.addWidget(QtWidgets.QLabel("Data:"))
+        layout.addWidget(QtWidgets.QLabel("*Data:"))
         layout.addWidget(self.entry_data)
-        layout.addWidget(QtWidgets.QLabel("Procedimento:"))
+        layout.addWidget(QtWidgets.QLabel("*Procedimento:"))
         layout.addWidget(self.entry_procedimento)
-        layout.addWidget(QtWidgets.QLabel("Quantidade de Procedimento:"))
+        layout.addWidget(QtWidgets.QLabel("*Quantidade de Procedimento:"))
         layout.addWidget(self.entry_quant_procedimento)
-        layout.addWidget(QtWidgets.QLabel("Quantidade de Ampola:"))
+        layout.addWidget(QtWidgets.QLabel("*Quantidade de Ampola:"))
         layout.addWidget(self.entry_quant_ampola)
-        layout.addWidget(QtWidgets.QLabel("Custo:"))
+        layout.addWidget(QtWidgets.QLabel("*Custo:"))
         layout.addWidget(self.entry_custo)
-        layout.addWidget(QtWidgets.QLabel("Local:"))
+        layout.addWidget(QtWidgets.QLabel("*Local:"))
         layout.addWidget(self.entry_local)
-        layout.addWidget(QtWidgets.QLabel("Médico:"))
+        layout.addWidget(QtWidgets.QLabel("*Médico:"))
         layout.addWidget(self.entry_medico)
         layout.addWidget(QtWidgets.QLabel("Nota Fiscal:"))
         layout.addWidget(self.entry_nota_fiscal)
@@ -78,19 +88,23 @@ class EditAnnotationDialog(QtWidgets.QDialog):
             self.entry_data.setDate(QDate.currentDate())
 
     def _preencher_campos(self, anotacao):
-        """ Preenche os campos da interface com os dados da anotação selecionada. """
+        """Preenche os campos da interface com os dados da anotação selecionada."""
         data_str = anotacao['data']
         data = Utils.converter_string_para_qdate(data_str, "dd/MM/yyyy")
         self.entry_data.setDate(data)  # Define a data no QDateEdit
         self.entry_procedimento.setText(anotacao['procedimento'])
         self.entry_quant_procedimento.setValue(anotacao['quant_procedimento'])
         self.entry_quant_ampola.setValue(anotacao['quant_ampola'])
-        self.entry_custo.setText(anotacao['custo'])
+
+        custo = anotacao['custo']
+        if isinstance(custo, str):  # Verifique se é uma string
+            custo = Utils.converter_string_para_float(custo)
+        self.entry_custo.setValue(custo)
+        
         self.entry_local.setText(anotacao['local'])
         self.entry_medico.setText(anotacao['medico'])
         self.entry_nota_fiscal.setText(anotacao['nota_fiscal'])
         self.entry_observacao.setText(anotacao['observacao'])
-
 
     def save_changes(self):
         """ Salva as alterações feitas nos campos de entrada. """
@@ -100,18 +114,18 @@ class EditAnnotationDialog(QtWidgets.QDialog):
             QtWidgets.QMessageBox.warning(self, "Validação", "Por favor, preencha todos os campos obrigatórios.")
 
     def get_anotacao(self):
-        """ Obtém os dados da anotação do diálogo, com a data formatada. """
+        """Retorna os dados preenchidos na caixa de dialogo """
         data = self.entry_data.date().toString("dd/MM/yyyy")
-        custo = self.entry_custo.text()
-
         data_formatada = Utils.formatar_data_para_banco(data)
         custo_formatado = Utils.formatar_custo_para_banco(custo)
+        custo = self.entry_custo.value()
+
         return {
             'data': data_formatada,
             'procedimento': self.entry_procedimento.text(),
             'quant_procedimento': self.entry_quant_procedimento.value(),
             'quant_ampola': self.entry_quant_ampola.value(),
-            'custo': custo_formatado,
+            'custo': custo_formatado,  # Formata para salvar
             'local': self.entry_local.text(),
             'medico': self.entry_medico.text(),
             'nota_fiscal': self.entry_nota_fiscal.text(),

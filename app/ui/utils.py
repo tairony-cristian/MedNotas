@@ -1,11 +1,12 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QDate
+import re
 
 class Utils:
 
     @staticmethod
     def converter_string_para_qdate(data_str, formato="dd/MM/yyyy"):
-        """ Converte uma string de data no formato especificado para QDate. """
+        """Converte uma string de data no formato especificado para QDate."""
         data = QDate.fromString(data_str, formato)
         if data.isValid():
             return data
@@ -20,90 +21,98 @@ class Utils:
         elif '/' in data:
             parts = data.split('/')
         else:
-            raise ValueError("Data inválida. Use o formato yyyy-mm-dd ou yyyy/mm/dd.")
+            raise ValueError("Formato de data inválido. Use o formato yyyy-mm-dd ou yyyy/mm/dd.")
 
         if len(parts) == 3:
             return f"{parts[2]}/{parts[1]}/{parts[0]}"
         else:
-            raise ValueError("Data inválida. Use o formato yyyy-mm-dd ou yyyy/mm/dd.")
-        
+            raise ValueError("Formato de data inválido. Use o formato yyyy-mm-dd ou yyyy/mm/dd.")
+
+    @staticmethod   
     def formatar_data_para_banco(data):
-        """ Formata a data de dd/mm/yyyy para yyyy-mm-dd para salvar no banco de dados. """
+        """Formata a data de dd/mm/yyyy para yyyy-mm-dd para salvar no banco de dados."""
         if '/' in data:
             partes = data.split('/')
             # Converte a data para o formato yyyy-mm-dd
             return f'{partes[2]}-{partes[1]}-{partes[0]}'
         else:
-            raise ValueError("Data inválida. Use o formato dd/mm/yyyy.")
+            raise ValueError("Formato de data inválido. Use o formato dd/mm/yyyy.")
 
+    import re
+
+    @staticmethod
+    def formatar_custo_para_banco(custo):
+        """Formata o custo para salvar no banco de dados como float."""
+        if isinstance(custo, float):
+            return custo
+        elif isinstance(custo, str):
+            try:
+                # Remove 'R$', espaços e outros caracteres não numéricos
+                custo = re.sub(r'[^\d,]', '', custo)
+                
+                # Substituir a vírgula por ponto para conversão para float
+                custo = custo.replace(',', '.')
+                return float(custo)
+            except ValueError:
+                raise ValueError("Custo inválido. Certifique-se de usar um número válido no formato R$ 1.234,56.")
+        else:
+            raise ValueError("Custo deve ser uma string ou float.")
 
     @staticmethod
     def formatar_custo_para_exibicao(custo):
-        try:
-            valor = float(custo)  # Certifica-se de que o valor é float
-            # Formata para exibição no padrão brasileiro
-            return f"R$ {valor:,.2f}".replace('.', 'X').replace(',', '.').replace('X', ',')
-        except ValueError:
-            raise ValueError("Custo inválido. Certifique-se de usar um número válido no formato R$ 1.234,56")
+        """Formata o custo para exibição no padrão monetário brasileiro."""
+        if isinstance(custo, float):
+            # Formata para exibição no padrão R$ 1.234,56
+            return f"R$ {custo:,.2f}".replace('.', 'X').replace(',', '.').replace('X', ',')
+        raise ValueError("Custo deve ser um valor float.")
 
     @staticmethod
-    def formatar_custo_para_banco(custo_str):
-        try:
-            # Remove 'R$', espaços e substitui vírgulas por pontos
-            custo = custo_str.replace('R$', '').replace('.', '').replace(',', '.').strip()
-            valor = float(custo)  # Converte para float
-            return valor
-        except ValueError:
-            raise ValueError("Custo inválido. Certifique-se de usar um número válido no formato R$ 1.234,56")
+    def converter_string_para_float(custo_str):
+        """Converte uma string de custo para float."""
+        if isinstance(custo_str, str):
+            try:
+                # Remove 'R$', espaços e substitui vírgulas por pontos
+                custo = re.sub(r'[^\d,]', '', custo_str).replace(',', '.')
+                return float(custo)
+            except ValueError:
+                raise ValueError("Custo inválido. Certifique-se de usar um número válido no formato R$ 1.234,56.")
+        raise ValueError("Custo deve ser uma string.")
 
-        
+            
     @staticmethod
     def validar_campos(dialog):
-        """ Valida se todos os campos obrigatórios estão preenchidos no diálogo fornecido. """
+        """Valida se todos os campos obrigatórios estão preenchidos no diálogo fornecido."""
         try:
             campos_obrigatorios = {
                 "Data": dialog.entry_data,
                 "Procedimento": dialog.entry_procedimento,
-                "Quantidade de Procedimento": dialog.entry_quant_procedimento,
-                "Quantidade de Ampola": dialog.entry_quant_ampola,
+                "Custo": dialog.entry_custo,  # Verificar valor diretamente do QDoubleSpinBox
                 "Local": dialog.entry_local,
-                "Medico": dialog.entry_medico,
+                "Médico": dialog.entry_medico,
             }
 
             # Verifica se os campos obrigatórios estão preenchidos
             for campo, widget in campos_obrigatorios.items():
-                if not widget.text().strip():
+                if isinstance(widget, QtWidgets.QLineEdit) and not widget.text().strip():
                     widget.setFocus()
-                    raise ValueError(f"O campo {campo} não pode estar vazio.")
+                    raise ValueError(f"O campo '{campo}' não pode estar vazio.")
 
             # Valida as quantidades
-            Utils._validar_quantidade(campos_obrigatorios["Quantidade de Procedimento"].text())
-            Utils._validar_quantidade(campos_obrigatorios["Quantidade de Ampola"].text())
+            Utils._validar_quantidade(dialog.entry_quant_procedimento, dialog.entry_quant_ampola)
 
             # Valida o custo
-            if not Utils._validar_custo(dialog.entry_custo.text()):
-                dialog.entry_custo.setFocus()
-                raise ValueError("O custo deve ser um número válido no formato 1234.56.")
+            if dialog.entry_custo.value() == 0:  # Usar valor do QDoubleSpinBox diretamente
+                campos_obrigatorios["Custo"].setFocus()
+                raise ValueError("O custo deve ser um número válido.")
 
             return True
 
         except ValueError as e:
             QtWidgets.QMessageBox.warning(dialog, "Validação", str(e))
             return False
-
+    
     @staticmethod
-    def _validar_custo(custo_str):
-        """ Valida se o custo é um número válido. """
-        try:
-            # Remove 'R$', espaços e substitui vírgulas por pontos
-            custo = custo_str.replace('R$', '').replace('.', '').replace(',', '.').strip()
-            float(custo)  # Tenta converter para float
-            return True
-        except ValueError:
-            return False
-
-    @staticmethod
-    def _validar_quantidade(quantidade):
-        """ Valida se a quantidade é um número válido. """
-        if not quantidade.isdigit():
-            raise ValueError("Os campos de Quantidade devem conter valores numéricos válidos.")
+    def _validar_quantidade(quantidade_procedimento, quantidade_ampola):
+        """Valida que as quantidades são coerentes, seguindo as regras de negócio."""
+        if quantidade_procedimento.value() == 0 and quantidade_ampola.value() == 0:
+            raise ValueError("Pelo menos um dos campos 'Quantidade de Procedimento' ou 'Quantidade de Ampola' deve ser maior que zero.")

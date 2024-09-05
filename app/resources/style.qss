@@ -109,3 +109,39 @@ QCalendarWidget QToolButton {
 QCalendarWidget QToolButton:hover {
     background-color: #5b4f76; /* Tom mais claro de roxo escuro ao passar o mouse */
 }
+
+/* Estilo dos campos de entrada numéricos */
+QDoubleSpinBox, QSpinBox {
+    background-color: #ffffff;
+    border: 1px solid #dcdcdc;
+    border-radius: 5px;
+    padding: 8px;
+    font-size: 14px;
+    min-width: 150px;  /* Define uma largura mínima */
+}
+
+/* Estilo dos botões de incremento/decremento em QDoubleSpinBox e QSpinBox */
+QDoubleSpinBox::up-button, QSpinBox::up-button {
+    background-color: #BDA8C5; /* Cor roxa clara para os botões */
+    border: none;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+QDoubleSpinBox::down-button, QSpinBox::down-button {
+    background-color: #BDA8C5; /* Cor roxa clara para os botões */
+    border: none;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+QDoubleSpinBox::up-button:hover, QSpinBox::up-button:hover,
+QDoubleSpinBox::down-button:hover, QSpinBox::down-button:hover {
+    background-color: #5b4f76; /* Tom mais claro de roxo escuro ao passar o mouse */
+}
+
+QDoubleSpinBox::up-button:pressed, QSpinBox::up-button:pressed,
+QDoubleSpinBox::down-button:pressed, QSpinBox::down-button:pressed {
+    background-color: #3e314d; /* Tom ainda mais escuro de roxo escuro ao pressionar */
+}
+

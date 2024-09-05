@@ -69,7 +69,6 @@ class MainWindow(QtWidgets.QWidget):
         self.table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         
-
     def create_layout(self):
         main_layout = QtWidgets.QVBoxLayout(self)
 
