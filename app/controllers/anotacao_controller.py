@@ -1,7 +1,7 @@
 from ui.utils import Utils
 from PyQt5 import QtWidgets
-from models.anotacao import Anotacao
 from database import DatabaseConnection
+from ui.exportar_relatorio import RelatorioExporter
 from ui.edit_annotation_dialog import EditAnnotationDialog
 
 class AnotacaoController:
@@ -156,3 +156,19 @@ class AnotacaoController:
                     data = Utils.formatar_data_para_exibicao(data)
                 
                 self.main_window.table.setItem(row_position, i, QtWidgets.QTableWidgetItem(str(data)))
+
+    def obter_dados_da_tabela(self):
+        tabela = self.main_window.table
+        dados = []
+        for row in range(tabela.rowCount()):
+            linha_dados = []
+            for column in range(tabela.columnCount()):
+                item = tabela.item(row, column)
+                linha_dados.append(item.text() if item else "")
+            dados.append(linha_dados)
+        return dados
+    
+    def exportar_relatorio(self):
+        dados_filtrados = self.obter_dados_da_tabela()
+        exporter = RelatorioExporter(self.main_window, dados_filtrados)
+        exporter.exportar_relatorio()

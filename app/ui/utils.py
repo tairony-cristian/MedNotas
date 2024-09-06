@@ -38,8 +38,6 @@ class Utils:
         else:
             raise ValueError("Formato de data inválido. Use o formato dd/mm/yyyy.")
 
-    import re
-
     @staticmethod
     def formatar_custo_para_banco(custo):
         """Formata o custo para salvar no banco de dados como float."""
@@ -78,7 +76,6 @@ class Utils:
                 raise ValueError("Custo inválido. Certifique-se de usar um número válido no formato R$ 1.234,56.")
         raise ValueError("Custo deve ser uma string.")
 
-            
     @staticmethod
     def validar_campos(dialog):
         """Valida se todos os campos obrigatórios estão preenchidos no diálogo fornecido."""
@@ -86,33 +83,50 @@ class Utils:
             campos_obrigatorios = {
                 "Data": dialog.entry_data,
                 "Procedimento": dialog.entry_procedimento,
+                "Quantidade de Procedimento": dialog.entry_quant_procedimento,
+                "Quantidade de Ampola": dialog.entry_quant_ampola,
                 "Custo": dialog.entry_custo,  # Verificar valor diretamente do QDoubleSpinBox
                 "Local": dialog.entry_local,
                 "Médico": dialog.entry_medico,
             }
 
+            estilo_padrao = "border: none;"
+
+            estilo_erro = "border: 1px solid red;"
+
             # Verifica se os campos obrigatórios estão preenchidos
             for campo, widget in campos_obrigatorios.items():
                 if isinstance(widget, QtWidgets.QLineEdit) and not widget.text().strip():
+                    widget.setStyleSheet(estilo_erro)
                     widget.setFocus()
                     raise ValueError(f"O campo '{campo}' não pode estar vazio.")
+                else:
+                    widget.setStyleSheet(estilo_padrao)  # Remove o estilo de erro
 
             # Valida as quantidades
             Utils._validar_quantidade(dialog.entry_quant_procedimento, dialog.entry_quant_ampola)
 
             # Valida o custo
             if dialog.entry_custo.value() == 0:  # Usar valor do QDoubleSpinBox diretamente
-                campos_obrigatorios["Custo"].setFocus()
+                dialog.entry_custo.setStyleSheet(estilo_erro)
+                dialog.entry_custo.setFocus()
                 raise ValueError("O custo deve ser um número válido.")
+            else:
+                dialog.entry_custo.setStyleSheet(estilo_padrao)  # Remove o estilo de erro
 
             return True
 
         except ValueError as e:
             QtWidgets.QMessageBox.warning(dialog, "Validação", str(e))
             return False
-    
+
     @staticmethod
     def _validar_quantidade(quantidade_procedimento, quantidade_ampola):
         """Valida que as quantidades são coerentes, seguindo as regras de negócio."""
         if quantidade_procedimento.value() == 0 and quantidade_ampola.value() == 0:
-            raise ValueError("Pelo menos um dos campos 'Quantidade de Procedimento' ou 'Quantidade de Ampola' deve ser maior que zero.")
+            quantidade_procedimento.setStyleSheet("border: 1px solid red;")
+            quantidade_ampola.setStyleSheet("border: 1px solid red;")
+            raise ValueError("Pelo menos um dos campos deve ser maior que zero.")
+        else:
+            quantidade_procedimento.setStyleSheet("border: none;")
+            quantidade_ampola.setStyleSheet("border: none;")

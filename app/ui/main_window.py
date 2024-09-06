@@ -60,6 +60,7 @@ class MainWindow(QtWidgets.QWidget):
         self.btn_editar = QtWidgets.QPushButton("Editar", self)
         self.btn_apagar = QtWidgets.QPushButton("Apagar", self)
         self.btn_pesquisar = QtWidgets.QPushButton("Pesquisar", self)
+        self.btn_exportar = QtWidgets.QPushButton("Exportar Relatório", self)
 
         # Tabela
         self.table = QtWidgets.QTableWidget(self)
@@ -81,6 +82,7 @@ class MainWindow(QtWidgets.QWidget):
         pesquisa_layout.addWidget(self.date_final)
         pesquisa_layout.addWidget(self.combo_pesquisa)
         pesquisa_layout.addWidget(self.btn_pesquisar)
+        pesquisa_layout.addWidget(self.btn_exportar)
         main_layout.addLayout(pesquisa_layout)
 
         # Tabela
@@ -101,6 +103,7 @@ class MainWindow(QtWidgets.QWidget):
         self.btn_pesquisar.clicked.connect(self.controller.pesquisar_anotacao)
         self.combo_pesquisa.currentIndexChanged.connect(self.update_search_fields)
         self.entry_pesquisa.returnPressed.connect(self.controller.pesquisar_anotacao)
+        self.btn_exportar.clicked.connect(self.controller.exportar_relatorio)
 
     def update_search_fields(self):
         """ Atualiza os campos de entrada conforme a seleção no combobox. """

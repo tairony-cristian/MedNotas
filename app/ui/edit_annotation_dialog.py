@@ -26,7 +26,7 @@ class EditAnnotationDialog(QtWidgets.QDialog):
 
         # Outros campos de entrada
         self.entry_procedimento = QtWidgets.QLineEdit()
-        
+
         self.entry_quant_procedimento = QtWidgets.QSpinBox()
         self.entry_quant_procedimento.setMaximum(10000)
         self.entry_quant_ampola = QtWidgets.QSpinBox()
@@ -117,8 +117,8 @@ class EditAnnotationDialog(QtWidgets.QDialog):
         """Retorna os dados preenchidos na caixa de dialogo """
         data = self.entry_data.date().toString("dd/MM/yyyy")
         data_formatada = Utils.formatar_data_para_banco(data)
-        custo_formatado = Utils.formatar_custo_para_banco(custo)
         custo = self.entry_custo.value()
+        custo_formatado = Utils.formatar_custo_para_banco(custo)
 
         return {
             'data': data_formatada,

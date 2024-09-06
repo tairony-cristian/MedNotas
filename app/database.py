@@ -175,7 +175,6 @@ class DatabaseConnection:
             print(f"Erro ao buscar anotações por nota fiscal: {e}")
             raise
 
-
     def listar_anotacoes(self):
         """ Lista todas as anotações no banco de dados. """
         sql = 'SELECT * FROM app_anotacoes'
