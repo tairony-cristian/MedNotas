@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtCore
 from ui.utils import Utils
 from PyQt5.QtCore import QDate, QLocale
 
@@ -32,13 +32,11 @@ class EditAnnotationDialog(QtWidgets.QDialog):
         self.entry_quant_ampola = QtWidgets.QSpinBox()
         self.entry_quant_ampola.setMaximum(10000)
         
-        self.entry_custo = QtWidgets.QDoubleSpinBox()
-        self.entry_custo.setPrefix("R$ ")  # Prefixo para exibir o símbolo de R$
-        self.entry_custo.setDecimals(2)  # Número de casas decimais
-        self.entry_custo.setMinimum(0.00)  # Define o valor mínimo 
-        self.entry_custo.setMaximum(99999999.99) # Define o valor máximo
-        self.entry_custo.setSingleStep(1.00)  # Incremento para ajuste com as setas
-        self.entry_custo.setLocale(QLocale(QLocale.Portuguese, QLocale.Brazil))  # Para garantir que o separador decimal seja a vírgula
+        # Campo de custo com formatação customizada
+        self.entry_custo = QtWidgets.QLineEdit()
+        self.entry_custo.setPlaceholderText("R$ 0,00")
+        self.entry_custo.setAlignment(QtCore.Qt.AlignLeft)  
+        self.entry_custo.textChanged.connect(self.handle_custo_changed)
 
         self.entry_local = QtWidgets.QLineEdit()
         self.entry_medico = QtWidgets.QLineEdit()
@@ -87,6 +85,10 @@ class EditAnnotationDialog(QtWidgets.QDialog):
             # Se for uma nova anotação, preenche com a data atual
             self.entry_data.setDate(QDate.currentDate())
 
+    def handle_custo_changed(self):
+        """Handles the text change event for the custo input field."""
+        Utils.atualizar_formatacao_custo(self.entry_custo)
+
     def _preencher_campos(self, anotacao):
         """Preenche os campos da interface com os dados da anotação selecionada."""
         data_str = anotacao['data']
@@ -99,7 +101,8 @@ class EditAnnotationDialog(QtWidgets.QDialog):
         custo = anotacao['custo']
         if isinstance(custo, str):  # Verifique se é uma string
             custo = Utils.converter_string_para_float(custo)
-        self.entry_custo.setValue(custo)
+        formatted_custo = Utils.formatar_custo_para_exibicao(custo)
+        self.entry_custo.setText(formatted_custo)
         
         self.entry_local.setText(anotacao['local'])
         self.entry_medico.setText(anotacao['medico'])
@@ -117,7 +120,7 @@ class EditAnnotationDialog(QtWidgets.QDialog):
         """Retorna os dados preenchidos na caixa de dialogo """
         data = self.entry_data.date().toString("dd/MM/yyyy")
         data_formatada = Utils.formatar_data_para_banco(data)
-        custo = self.entry_custo.value()
+        custo = self.entry_custo.text()
         custo_formatado = Utils.formatar_custo_para_banco(custo)
 
         return {

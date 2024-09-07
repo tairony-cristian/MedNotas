@@ -58,11 +58,12 @@ class Utils:
 
     @staticmethod
     def formatar_custo_para_exibicao(custo):
-        """Formata o custo para exibição no padrão monetário brasileiro."""
-        if isinstance(custo, float):
-            # Formata para exibição no padrão R$ 1.234,56
-            return f"R$ {custo:,.2f}".replace('.', 'X').replace(',', '.').replace('X', ',')
-        raise ValueError("Custo deve ser um valor float.")
+        """ Formata o custo para exibição como valor monetário. """
+        if not isinstance(custo, float):
+            raise ValueError("Custo deve ser um valor float.")
+
+        # Format the float value into Brazilian currency format
+        return f"R$ {custo:,.2f}".replace(",", "v").replace(".", ",").replace("v", ".")
 
     @staticmethod
     def converter_string_para_float(custo_str):
@@ -75,6 +76,42 @@ class Utils:
             except ValueError:
                 raise ValueError("Custo inválido. Certifique-se de usar um número válido no formato R$ 1.234,56.")
         raise ValueError("Custo deve ser uma string.")
+    
+    @staticmethod
+    def atualizar_formatacao_custo(entry_custo):
+        """Atualiza a formatação do campo de custo em tempo real para formato monetário R$."""
+        try:
+            # Remove qualquer caractere que não seja número
+            texto = entry_custo.text().strip().replace("R$", "").replace(".", "").replace(",", "").strip()
+
+            # Se o campo estiver vazio ou conter apenas zeros, exibe R$ 0,00
+            if not texto or int(texto) == 0:
+                entry_custo.setText("R$ 0,00")
+                entry_custo.setCursorPosition(entry_custo.text().index("0,00"))
+                return
+
+            # O usuário vai digitar os valores sem separadores, então sempre tratamos os dois últimos como centavos
+            if len(texto) == 1:
+                texto = "00" + texto  # Se um dígito foi digitado, assumimos que é centavo
+            elif len(texto) == 2:
+                texto = "0" + texto  # Se dois dígitos foram digitados, também é centavo
+
+            # Converte para float com os dois últimos como centavos
+            valor_float = float(texto[:-2] + "." + texto[-2:])
+
+            # Formata o número para o formato monetário
+            valor_formatado = f"R$ {valor_float:,.2f}".replace(",", "v").replace(".", ",").replace("v", ".")
+
+            # Atualiza o campo de texto
+            entry_custo.setText(valor_formatado)
+
+            # Reposiciona o cursor no final
+            entry_custo.setCursorPosition(len(valor_formatado))
+
+        except ValueError:
+            entry_custo.setText("R$ 0,00")  # Valor padrão em caso de erro
+            entry_custo.setCursorPosition(entry_custo.text().index("0,00"))
+
 
     @staticmethod
     def validar_campos(dialog):
@@ -85,13 +122,12 @@ class Utils:
                 "Procedimento": dialog.entry_procedimento,
                 "Quantidade de Procedimento": dialog.entry_quant_procedimento,
                 "Quantidade de Ampola": dialog.entry_quant_ampola,
-                "Custo": dialog.entry_custo,  # Verificar valor diretamente do QDoubleSpinBox
+                "Custo": dialog.entry_custo,  # Verificar valor do QLineEdit
                 "Local": dialog.entry_local,
                 "Médico": dialog.entry_medico,
             }
 
             estilo_padrao = "border: none;"
-
             estilo_erro = "border: 1px solid red;"
 
             # Verifica se os campos obrigatórios estão preenchidos
@@ -107,7 +143,8 @@ class Utils:
             Utils._validar_quantidade(dialog.entry_quant_procedimento, dialog.entry_quant_ampola)
 
             # Valida o custo
-            if dialog.entry_custo.value() == 0:  # Usar valor do QDoubleSpinBox diretamente
+            custo_texto = dialog.entry_custo.text().strip()  # Obter o texto do QLineEdit
+            if not custo_texto or Utils.converter_string_para_float(custo_texto) == 0:
                 dialog.entry_custo.setStyleSheet(estilo_erro)
                 dialog.entry_custo.setFocus()
                 raise ValueError("O custo deve ser um número válido.")

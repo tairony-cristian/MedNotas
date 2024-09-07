@@ -51,6 +51,13 @@ class AnotacaoController:
                 dialog = EditAnnotationDialog(self.main_window)
                 if dialog.exec_() == QtWidgets.QDialog.Accepted:
                     anotacao = dialog.get_anotacao()
+                    
+                    try:
+                        custo_str = anotacao['custo']
+                        anotacao['custo'] = Utils.converter_string_para_float(custo_str)
+                    except ValueError as e:
+                        QtWidgets.QMessageBox.warning(self.main_window, "Erro de Custo", str(e))
+                        return
 
                     if self.main_window.editing:
                         self.db.atualizar_anotacao(self.main_window.editing_id, anotacao)
