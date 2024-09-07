@@ -7,10 +7,8 @@ class EditAnnotationDialog(QtWidgets.QDialog):
         super().__init__(parent)
         self.parent = parent
         self.anotacao = anotacao
-
         self.setWindowTitle("Editar Anotação")
         self.setModal(True)
-
         self.init_ui()
 
     def init_ui(self):
@@ -26,7 +24,6 @@ class EditAnnotationDialog(QtWidgets.QDialog):
 
         # Outros campos de entrada
         self.entry_procedimento = QtWidgets.QLineEdit()
-
         self.entry_quant_procedimento = QtWidgets.QSpinBox()
         self.entry_quant_procedimento.setMaximum(10000)
         self.entry_quant_ampola = QtWidgets.QSpinBox()
@@ -36,7 +33,7 @@ class EditAnnotationDialog(QtWidgets.QDialog):
         self.entry_custo = QtWidgets.QLineEdit()
         self.entry_custo.setPlaceholderText("R$ 0,00")
         self.entry_custo.setAlignment(QtCore.Qt.AlignLeft)  
-        self.entry_custo.textChanged.connect(self.handle_custo_changed)
+        self.entry_custo.textChanged.connect(lambda: Utils.atualizar_formatacao_custo(self.entry_custo))
 
         self.entry_local = QtWidgets.QLineEdit()
         self.entry_medico = QtWidgets.QLineEdit()
@@ -85,22 +82,17 @@ class EditAnnotationDialog(QtWidgets.QDialog):
             # Se for uma nova anotação, preenche com a data atual
             self.entry_data.setDate(QDate.currentDate())
 
-    def handle_custo_changed(self):
-        """Handles the text change event for the custo input field."""
-        Utils.atualizar_formatacao_custo(self.entry_custo)
-
     def _preencher_campos(self, anotacao):
-        """Preenche os campos da interface com os dados da anotação selecionada."""
         data_str = anotacao['data']
         data = Utils.converter_string_para_qdate(data_str, "dd/MM/yyyy")
-        self.entry_data.setDate(data)  # Define a data no QDateEdit
+        self.entry_data.setDate(data)
         self.entry_procedimento.setText(anotacao['procedimento'])
         self.entry_quant_procedimento.setValue(anotacao['quant_procedimento'])
         self.entry_quant_ampola.setValue(anotacao['quant_ampola'])
 
         custo = anotacao['custo']
-        if isinstance(custo, str):  # Verifique se é uma string
-            custo = Utils.converter_string_para_float(custo)
+        if isinstance(custo, str):
+            custo = Utils.formatar_custo_para_banco(custo)
         formatted_custo = Utils.formatar_custo_para_exibicao(custo)
         self.entry_custo.setText(formatted_custo)
         
@@ -117,20 +109,14 @@ class EditAnnotationDialog(QtWidgets.QDialog):
             QtWidgets.QMessageBox.warning(self, "Validação", "Por favor, preencha todos os campos obrigatórios.")
 
     def get_anotacao(self):
-        """Retorna os dados preenchidos na caixa de dialogo """
-        data = self.entry_data.date().toString("dd/MM/yyyy")
-        data_formatada = Utils.formatar_data_para_banco(data)
-        custo = self.entry_custo.text()
-        custo_formatado = Utils.formatar_custo_para_banco(custo)
-
         return {
-            'data': data_formatada,
-            'procedimento': self.entry_procedimento.text(),
+            'data': Utils.formatar_data_para_banco(self.entry_data.text().strip()),
+            'procedimento': self.entry_procedimento.text().strip(),
             'quant_procedimento': self.entry_quant_procedimento.value(),
             'quant_ampola': self.entry_quant_ampola.value(),
-            'custo': custo_formatado,  # Formata para salvar
-            'local': self.entry_local.text(),
-            'medico': self.entry_medico.text(),
-            'nota_fiscal': self.entry_nota_fiscal.text(),
-            'observacao': self.entry_observacao.toPlainText(),
+            'custo': Utils.formatar_custo_para_banco(self.entry_custo.text().strip()),
+            'local': self.entry_local.text().strip(),
+            'medico': self.entry_medico.text().strip(),
+            'nota_fiscal': self.entry_nota_fiscal.text().strip(),
+            'observacao': self.entry_observacao.toPlainText().strip()
         }

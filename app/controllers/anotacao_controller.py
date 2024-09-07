@@ -53,10 +53,10 @@ class AnotacaoController:
                     anotacao = dialog.get_anotacao()
                     
                     try:
-                        custo_str = anotacao['custo']
-                        anotacao['custo'] = Utils.converter_string_para_float(custo_str)
+                        anotacao['custo'] = Utils.formatar_custo_para_banco(anotacao['custo'])
+                        anotacao['data'] = Utils.formatar_data_para_banco(anotacao['data'])
                     except ValueError as e:
-                        QtWidgets.QMessageBox.warning(self.main_window, "Erro de Custo", str(e))
+                        QtWidgets.QMessageBox.warning(self.main_window, "Erro de Dados", str(e))
                         return
 
                     if self.main_window.editing:

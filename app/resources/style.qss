@@ -37,10 +37,24 @@ QTableWidget {
     border: 1px solid #dcdcdc;
     border-radius: 5px;
     font-size: 14px;
+    /* Manter borda e arredondamento */
 }
 QTableWidget::item {
     padding: 8px;
 }
+
+/* Cor dos itens da tabela quando selecionados */
+QTableWidget::item:selected {
+    background-color: #BDA8C5; /* Cor roxa clara */
+    color: #473C60; /* Texto roxo escuro */
+}
+
+/* Cor das linhas da tabela ao passar o mouse */
+QTableWidget::item:hover {
+    background-color: #f0f0f0; /* Cor de fundo suave ao passar o mouse */
+}
+
+/* Cabeçalho da tabela */
 QHeaderView::section {
     background-color: #BDA8C5; /* Cor roxa clara */
     color: #473C60; /* Texto roxo escuro */
@@ -65,26 +79,28 @@ QComboBox {
     height: 25px;      /* Define uma altura fixa */
 }
 
+/* Cor do fundo do dropdown */
+QComboBox QAbstractItemView {
+    background-color: #BDA8C5; /* Cor roxa clara */
+    selection-background-color: #473C60; /* Cor roxa escura para o item selecionado */
+    selection-color: #ffffff; /* Texto branco para o item selecionado */
+}
+
+/* Cor do botão de dropdown */
 QComboBox::drop-down {
     subcontrol-origin: padding;
     subcontrol-position: top right;
     width: 25px;  /* Largura do botão de dropdown */
     border-left: 1px solid #dcdcdc;
+    background-color: #BDA8C5; /* Cor roxa clara */
 }
 
+/* Ícone da seta do dropdown */
 QComboBox::down-arrow {
     image: url(C:/projeto_python/MedNotas/app/resources/down_arrow.png);
     width: 17px;
     height: 17px;
 }
-
-QComboBox::drop-down {
-    subcontrol-origin: padding;
-    subcontrol-position: top right;
-    width: 25px;  /* Largura do botão de dropdown */
-    border-left: 1px solid #dcdcdc;
-}
-
 
 /* Estilo do calendário no QDateEdit */
 QCalendarWidget {
@@ -111,7 +127,7 @@ QCalendarWidget QToolButton:hover {
 }
 
 /* Estilo dos campos de entrada numéricos */
-QDoubleSpinBox, QSpinBox {
+QSpinBox {
     background-color: #ffffff;
     border: 1px solid #dcdcdc;
     border-radius: 5px;
@@ -120,28 +136,32 @@ QDoubleSpinBox, QSpinBox {
     min-width: 150px;  /* Define uma largura mínima */
 }
 
-/* Estilo dos botões de incremento/decremento em QDoubleSpinBox e QSpinBox */
-QDoubleSpinBox::up-button, QSpinBox::up-button {
+QSpinBox::up-button {
     background-color: #BDA8C5; /* Cor roxa clara para os botões */
     border: none;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
+    width: 15px;  /* Largura do botão */
+    height: 15px; /* Altura do botão */
+    image: url(C:/projeto_python/MedNotas/app/resources/up_arrow.png);
 }
 
-QDoubleSpinBox::down-button, QSpinBox::down-button {
+QSpinBox::down-button {
     background-color: #BDA8C5; /* Cor roxa clara para os botões */
     border: none;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
+    width: 15px;  /* Largura do botão */
+    height: 15px; /* Altura do botão */
+    image: url(C:/projeto_python/MedNotas/app/resources/down_arrow.png);
 }
 
-QDoubleSpinBox::up-button:hover, QSpinBox::up-button:hover,
-QDoubleSpinBox::down-button:hover, QSpinBox::down-button:hover {
+QSpinBox::up-button:hover,
+QSpinBox::down-button:hover {
     background-color: #5b4f76; /* Tom mais claro de roxo escuro ao passar o mouse */
 }
 
-QDoubleSpinBox::up-button:pressed, QSpinBox::up-button:pressed,
-QDoubleSpinBox::down-button:pressed, QSpinBox::down-button:pressed {
+QSpinBox::up-button:pressed,
+QSpinBox::down-button:pressed {
     background-color: #3e314d; /* Tom ainda mais escuro de roxo escuro ao pressionar */
 }
-

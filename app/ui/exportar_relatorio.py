@@ -5,7 +5,6 @@ from reportlab.lib.pagesizes import  A4
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from reportlab.lib.units import inch
 from reportlab.lib import colors
-from fpdf import FPDF
 
 class RelatorioExporter:
     def __init__(self, main_window, dados_filtrados=None):
@@ -84,7 +83,6 @@ class RelatorioExporter:
                 ws.append(row)
 
         wb.save(file_name)
-
 
     def salvar_relatorio_pdf(self, file_name):
         # Define o documento com margens ajustadas

@@ -45,11 +45,7 @@ class Utils:
             return custo
         elif isinstance(custo, str):
             try:
-                # Remove 'R$', espaços e outros caracteres não numéricos
-                custo = re.sub(r'[^\d,]', '', custo)
-                
-                # Substituir a vírgula por ponto para conversão para float
-                custo = custo.replace(',', '.')
+                custo = re.sub(r'[^\d,]', '', custo).replace(',', '.')
                 return float(custo)
             except ValueError:
                 raise ValueError("Custo inválido. Certifique-se de usar um número válido no formato R$ 1.234,56.")
@@ -59,59 +55,28 @@ class Utils:
     @staticmethod
     def formatar_custo_para_exibicao(custo):
         """ Formata o custo para exibição como valor monetário. """
-        if not isinstance(custo, float):
-            raise ValueError("Custo deve ser um valor float.")
+        if not isinstance(custo, (float, int)):
+            raise ValueError("Custo deve ser um valor numérico.")
 
-        # Format the float value into Brazilian currency format
         return f"R$ {custo:,.2f}".replace(",", "v").replace(".", ",").replace("v", ".")
 
-    @staticmethod
-    def converter_string_para_float(custo_str):
-        """Converte uma string de custo para float."""
-        if isinstance(custo_str, str):
-            try:
-                # Remove 'R$', espaços e substitui vírgulas por pontos
-                custo = re.sub(r'[^\d,]', '', custo_str).replace(',', '.')
-                return float(custo)
-            except ValueError:
-                raise ValueError("Custo inválido. Certifique-se de usar um número válido no formato R$ 1.234,56.")
-        raise ValueError("Custo deve ser uma string.")
-    
     @staticmethod
     def atualizar_formatacao_custo(entry_custo):
         """Atualiza a formatação do campo de custo em tempo real para formato monetário R$."""
         try:
-            # Remove qualquer caractere que não seja número
             texto = entry_custo.text().strip().replace("R$", "").replace(".", "").replace(",", "").strip()
-
-            # Se o campo estiver vazio ou conter apenas zeros, exibe R$ 0,00
             if not texto or int(texto) == 0:
                 entry_custo.setText("R$ 0,00")
                 entry_custo.setCursorPosition(entry_custo.text().index("0,00"))
                 return
 
-            # O usuário vai digitar os valores sem separadores, então sempre tratamos os dois últimos como centavos
-            if len(texto) == 1:
-                texto = "00" + texto  # Se um dígito foi digitado, assumimos que é centavo
-            elif len(texto) == 2:
-                texto = "0" + texto  # Se dois dígitos foram digitados, também é centavo
-
-            # Converte para float com os dois últimos como centavos
+            texto = texto.zfill(3)
             valor_float = float(texto[:-2] + "." + texto[-2:])
-
-            # Formata o número para o formato monetário
-            valor_formatado = f"R$ {valor_float:,.2f}".replace(",", "v").replace(".", ",").replace("v", ".")
-
-            # Atualiza o campo de texto
-            entry_custo.setText(valor_formatado)
-
-            # Reposiciona o cursor no final
-            entry_custo.setCursorPosition(len(valor_formatado))
-
+            entry_custo.setText(Utils.formatar_custo_para_exibicao(valor_float))
+            entry_custo.setCursorPosition(len(entry_custo.text()))
         except ValueError:
-            entry_custo.setText("R$ 0,00")  # Valor padrão em caso de erro
+            entry_custo.setText("R$ 0,00")
             entry_custo.setCursorPosition(entry_custo.text().index("0,00"))
-
 
     @staticmethod
     def validar_campos(dialog):
@@ -122,7 +87,7 @@ class Utils:
                 "Procedimento": dialog.entry_procedimento,
                 "Quantidade de Procedimento": dialog.entry_quant_procedimento,
                 "Quantidade de Ampola": dialog.entry_quant_ampola,
-                "Custo": dialog.entry_custo,  # Verificar valor do QLineEdit
+                "Custo": dialog.entry_custo,
                 "Local": dialog.entry_local,
                 "Médico": dialog.entry_medico,
             }
@@ -130,29 +95,25 @@ class Utils:
             estilo_padrao = "border: none;"
             estilo_erro = "border: 1px solid red;"
 
-            # Verifica se os campos obrigatórios estão preenchidos
             for campo, widget in campos_obrigatorios.items():
                 if isinstance(widget, QtWidgets.QLineEdit) and not widget.text().strip():
                     widget.setStyleSheet(estilo_erro)
                     widget.setFocus()
                     raise ValueError(f"O campo '{campo}' não pode estar vazio.")
                 else:
-                    widget.setStyleSheet(estilo_padrao)  # Remove o estilo de erro
+                    widget.setStyleSheet(estilo_padrao)
 
-            # Valida as quantidades
             Utils._validar_quantidade(dialog.entry_quant_procedimento, dialog.entry_quant_ampola)
 
-            # Valida o custo
-            custo_texto = dialog.entry_custo.text().strip()  # Obter o texto do QLineEdit
-            if not custo_texto or Utils.converter_string_para_float(custo_texto) == 0:
+            custo_texto = dialog.entry_custo.text().strip()
+            if not custo_texto or Utils.formatar_custo_para_banco(custo_texto) == 0:
                 dialog.entry_custo.setStyleSheet(estilo_erro)
                 dialog.entry_custo.setFocus()
                 raise ValueError("O custo deve ser um número válido.")
             else:
-                dialog.entry_custo.setStyleSheet(estilo_padrao)  # Remove o estilo de erro
+                dialog.entry_custo.setStyleSheet(estilo_padrao)
 
             return True
-
         except ValueError as e:
             QtWidgets.QMessageBox.warning(dialog, "Validação", str(e))
             return False

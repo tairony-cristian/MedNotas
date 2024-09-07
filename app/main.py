@@ -25,10 +25,12 @@ def main():
     # Carregar o estilo QSS
     style_path = resource_path("resources/style.qss")
     try:
-        with open(style_path, "r") as f:
+        with open(style_path, "r", encoding='utf-8') as f:
             app.setStyleSheet(f.read())
     except FileNotFoundError:
         print(f"Arquivo de estilo não encontrado: {style_path}")
+    except UnicodeDecodeError as e:
+        print(f"Erro ao ler o arquivo de estilo: {e}")
     
     # Criar e exibir a janela principal
     window = MainWindow()
