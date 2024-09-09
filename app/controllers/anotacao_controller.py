@@ -9,7 +9,7 @@ class AnotacaoController:
         self.main_window = main_window
         self.db = DatabaseConnection()
     
-    def adicionar_anotacao(self):
+    def nova_anotacao(self):
         """ Adiciona uma nova anotação ao banco de dados. """
         dialog = EditAnnotationDialog(self.main_window)
         if dialog.exec_() == QtWidgets.QDialog.Accepted:
@@ -43,34 +43,6 @@ class AnotacaoController:
                 QtWidgets.QMessageBox.warning(self.main_window, "Erro", "Anotação não encontrada.")
         else:
             QtWidgets.QMessageBox.warning(self.main_window, "Nenhum item selecionado", "Por favor, selecione uma anotação para editar.")
-      
-    def gravar_anotacao(self):
-        if Utils.validar_campos(self.main_window):
-            try:
-                # Abra o diálogo para obter os dados
-                dialog = EditAnnotationDialog(self.main_window)
-                if dialog.exec_() == QtWidgets.QDialog.Accepted:
-                    anotacao = dialog.get_anotacao()
-                    
-                    try:
-                        anotacao['custo'] = Utils.formatar_custo_para_banco(anotacao['custo'])
-                        anotacao['data'] = Utils.formatar_data_para_banco(anotacao['data'])
-                    except ValueError as e:
-                        QtWidgets.QMessageBox.warning(self.main_window, "Erro de Dados", str(e))
-                        return
-
-                    if self.main_window.editing:
-                        self.db.atualizar_anotacao(self.main_window.editing_id, anotacao)
-                        QtWidgets.QMessageBox.information(self.main_window, "Sucesso", "Anotação atualizada com sucesso!")
-                    else:
-                        self.db.adicionar_anotacao(anotacao)
-                        QtWidgets.QMessageBox.information(self.main_window, "Sucesso", "Anotação adicionada com sucesso!")
-
-                    self.main_window.editing = False
-                    self.main_window.editing_id = None
-                    self._atualizar_lista()
-            except Exception as e:
-                QtWidgets.QMessageBox.critical(self.main_window, "Erro", f"Erro ao salvar anotação: {str(e)}")
 
     def deletar_anotacao(self):
         """ Deleta uma anotação selecionada. """

@@ -60,7 +60,7 @@ class RelatorioExporter:
                 writer.writerow(["ID", "Data", "Procedimento", "Quant. Procedimento", "Quant. Ampola", "Custo", "Local", "Médico", "Nota Fiscal", "Observação"])
                 # Adiciona os dados
                 for row in self.dados_filtrados:
-                    # Encode and decode to ensure special characters are handled
+                    # Garante que caracteres especiais sejam tratados
                     row = [str(cell).encode('utf-8', errors='replace').decode('utf-8') for cell in row]
                     writer.writerow(row)
         except Exception as e:

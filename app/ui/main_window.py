@@ -97,7 +97,7 @@ class MainWindow(QtWidgets.QWidget):
         main_layout.addLayout(button_layout)
 
     def connect_signals(self):
-        self.btn_novo.clicked.connect(self.controller.adicionar_anotacao)
+        self.btn_novo.clicked.connect(self.controller.nova_anotacao)
         self.btn_editar.clicked.connect(self.controller.editar_anotacao)
         self.btn_apagar.clicked.connect(self.controller.deletar_anotacao)
         self.btn_pesquisar.clicked.connect(self.controller.pesquisar_anotacao)
