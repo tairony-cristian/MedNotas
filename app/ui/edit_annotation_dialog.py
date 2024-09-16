@@ -41,19 +41,19 @@ class EditAnnotationDialog(QtWidgets.QDialog):
         self.entry_observacao = QtWidgets.QTextEdit()
 
         # Adiciona os campos ao layout
-        layout.addWidget(QtWidgets.QLabel("*Data:"))
+        layout.addWidget(QtWidgets.QLabel("Data:"))
         layout.addWidget(self.entry_data)
-        layout.addWidget(QtWidgets.QLabel("*Procedimento:"))
+        layout.addWidget(QtWidgets.QLabel("Procedimento:"))
         layout.addWidget(self.entry_procedimento)
-        layout.addWidget(QtWidgets.QLabel("*Quantidade de Procedimento:"))
+        layout.addWidget(QtWidgets.QLabel("Quantidade de Procedimento:"))
         layout.addWidget(self.entry_quant_procedimento)
-        layout.addWidget(QtWidgets.QLabel("*Quantidade de Ampola:"))
+        layout.addWidget(QtWidgets.QLabel("Quantidade de Ampola:"))
         layout.addWidget(self.entry_quant_ampola)
-        layout.addWidget(QtWidgets.QLabel("*Custo:"))
+        layout.addWidget(QtWidgets.QLabel("Custo:"))
         layout.addWidget(self.entry_custo)
-        layout.addWidget(QtWidgets.QLabel("*Local:"))
+        layout.addWidget(QtWidgets.QLabel("Local:"))
         layout.addWidget(self.entry_local)
-        layout.addWidget(QtWidgets.QLabel("*Médico:"))
+        layout.addWidget(QtWidgets.QLabel("Médico:"))
         layout.addWidget(self.entry_medico)
         layout.addWidget(QtWidgets.QLabel("Nota Fiscal:"))
         layout.addWidget(self.entry_nota_fiscal)
@@ -105,8 +105,6 @@ class EditAnnotationDialog(QtWidgets.QDialog):
         """ Salva as alterações feitas nos campos de entrada. """
         if Utils.validar_campos(self):
             self.accept()  # Fecha o diálogo e indica que as alterações foram aceitas
-        else:
-            QtWidgets.QMessageBox.warning(self, "Validação", "Por favor, preencha todos os campos obrigatórios.")
 
     def get_anotacao(self):
         return {

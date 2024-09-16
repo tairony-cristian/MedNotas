@@ -15,7 +15,7 @@ class MainWindow(QtWidgets.QWidget):
         self.setWindowTitle("MedNotas")
         self.setGeometry(100, 100, 1200, 600)
 
-        self.setWindowIcon(QtGui.QIcon('C:/projeto_python/MedNotas/app/resources/mednotas.ico')) # Definir o ícone da janela
+        self.setWindowIcon(QtGui.QIcon('C:\\Projetos\\Python\\mednotas\\app\\resources\\mednotas.ico')) # Definir o ícone da janela
 
         self.create_widgets()
         self.create_layout()

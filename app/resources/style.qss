@@ -97,7 +97,7 @@ QComboBox::drop-down {
 
 /* Ícone da seta do dropdown */
 QComboBox::down-arrow {
-    image: url(C:/projeto_python/MedNotas/app/resources/down_arrow.png);
+    image: url("C:/Projetos/Python/mednotas/app/resources/down_arrow.png");
     width: 17px;
     height: 17px;
 }
@@ -142,7 +142,7 @@ QSpinBox::up-button {
     border-top-right-radius: 5px;
     width: 13px;  /* Largura do botão */
     height: 13px; /* Altura do botão */
-    image: url(C:/projeto_python/MedNotas/app/resources/up_arrow_QSpinBox.png);
+    image: url("C:/Projetos/Python/mednotas/app/resources/up_arrow_QSpinBox.png");
 }
 
 QSpinBox::down-button {
@@ -151,7 +151,7 @@ QSpinBox::down-button {
     border-bottom-right-radius: 5px;
     width: 13px;  /* Largura do botão */
     height: 13px; /* Altura do botão */
-    image: url(C:/projeto_python/MedNotas/app/resources/down_arrow_QSpinBox.png);
+    image: url("C:/Projetos/Python/mednotas/app/resources/down_arrow_QSpinBox.png");
 }
 
 QSpinBox::up-button:hover,

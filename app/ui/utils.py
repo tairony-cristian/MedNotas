@@ -80,51 +80,23 @@ class Utils:
 
     @staticmethod
     def validar_campos(dialog):
-        """Valida se todos os campos obrigatórios estão preenchidos no diálogo fornecido."""
+        """Valida os campos, mas sem obrigar o preenchimento."""
         try:
-            campos_obrigatorios = {
-                "Data": dialog.entry_data,
-                "Procedimento": dialog.entry_procedimento,
-                "Quantidade de Procedimento": dialog.entry_quant_procedimento,
-                "Quantidade de Ampola": dialog.entry_quant_ampola,
-                "Custo": dialog.entry_custo,
-                "Local": dialog.entry_local,
-                "Médico": dialog.entry_medico,
-            }
-
             estilo_padrao = "border: none;"
             estilo_erro = "border: 1px solid red;"
 
-            for campo, widget in campos_obrigatorios.items():
-                if isinstance(widget, QtWidgets.QLineEdit) and not widget.text().strip():
-                    widget.setStyleSheet(estilo_erro)
-                    widget.setFocus()
-                    raise ValueError(f"O campo '{campo}' não pode estar vazio.")
-                else:
-                    widget.setStyleSheet(estilo_padrao)
-
-            Utils._validar_quantidade(dialog.entry_quant_procedimento, dialog.entry_quant_ampola)
-
+            # Validação de custo (opcional, mas deve ser um valor válido se preenchido)
             custo_texto = dialog.entry_custo.text().strip()
-            if not custo_texto or Utils.formatar_custo_para_banco(custo_texto) == 0:
-                dialog.entry_custo.setStyleSheet(estilo_erro)
-                dialog.entry_custo.setFocus()
-                raise ValueError("O custo deve ser um número válido.")
-            else:
-                dialog.entry_custo.setStyleSheet(estilo_padrao)
+            if custo_texto:  # Apenas valida se houver valor
+                try:
+                    Utils.formatar_custo_para_banco(custo_texto)
+                    dialog.entry_custo.setStyleSheet(estilo_padrao)
+                except ValueError:
+                    dialog.entry_custo.setStyleSheet(estilo_erro)
+                    dialog.entry_custo.setFocus()
+                    raise ValueError("O custo deve ser um número válido.")
 
             return True
         except ValueError as e:
             QtWidgets.QMessageBox.warning(dialog, "Validação", str(e))
             return False
-
-    @staticmethod
-    def _validar_quantidade(quantidade_procedimento, quantidade_ampola):
-        """Valida que as quantidades são coerentes, seguindo as regras de negócio."""
-        if quantidade_procedimento.value() == 0 and quantidade_ampola.value() == 0:
-            quantidade_procedimento.setStyleSheet("border: 1px solid red;")
-            quantidade_ampola.setStyleSheet("border: 1px solid red;")
-            raise ValueError("Pelo menos um dos campos deve ser maior que zero.")
-        else:
-            quantidade_procedimento.setStyleSheet("border: none;")
-            quantidade_ampola.setStyleSheet("border: none;")
